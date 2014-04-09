@@ -1,0 +1,15 @@
+[default]
+basedir = C:\Users\dieter\Desktop
+ituneslist = Mist.txt
+
+[ratings]
+Onestar = 20
+Twostar = 40
+Threestar =60
+Fourstar = 80
+Fivestar = 100
+Notrated = ''
+
+[file format]
+default rowlen = 27
+delimiter=\t
