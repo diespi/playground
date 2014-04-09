@@ -1,5 +1,6 @@
 import sys,getopt
-import readline, glob
+#import readline, 
+import glob
 import os
 import errno
 
@@ -9,7 +10,7 @@ def complete(text, state):
 def mkdir_recursive( path):
         try:
                 os.makedirs(path)
-        except os.error, e:
+        except os.error as e:
                 if e.errno != errno.EEXIST:
                         raise
 
@@ -19,7 +20,7 @@ def copy(src, dest):
     except OSError as e:
         # If the error was caused because the source wasn't a directory
         if e.errno == errno.ENOTDIR:
-            shutil.copy(src, dst)
+            shutil.copy(src, dest)
         else:
             print('Directory not copied. Error: %s' % e)
 
@@ -38,9 +39,9 @@ def get_initial (artist):
 
 
 
-readline.set_completer_delims(' \t\n;')
-readline.parse_and_bind("tab: complete")
-readline.set_completer(complete)
+#readline.set_completer_delims(' \t\n;')
+#readline.parse_and_bind("tab: complete")
+#readline.set_completer(complete)
 try:
     myoptions, myargs = getopt.getopt(sys.argv[1:],"sda:")
 except getopt.GetoptError as e:
@@ -50,11 +51,11 @@ except getopt.GetoptError as e:
  
 for o, a in myoptions:
     if o == '-s':
-        source_path=raw_input('Path to source folder? ')
+        source_path=input('Path to source folder? ')
         if os.path.isdir(source_path):
                 print (source_path, "exists")
     elif o == '-d':
-        dest_path=raw_input('Path to destination folder? ')
+        dest_path=input('Path to destination folder? ')
     elif o == '-a':
         artist = a
 print(artist)
