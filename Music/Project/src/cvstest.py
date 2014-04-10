@@ -74,7 +74,7 @@ class myplaylist(object):
             # only if its an mp3 file
             if '.mp3' in line:
                 # format is rootpath/artist/album 
-                tracknr =line.split('-')
+                tracknr =line.split(' - ')
                 print ("Track-Nr",tracknr, len (tracknr))
                 line = os.path.dirname(item)
                 albumpath = line.split('\\')
@@ -83,8 +83,12 @@ class myplaylist(object):
                 # track - title -> len == 2
                 # disk-track - title
                 # track - artist - title
-                if len(tracknr) == 2:
-                    disknr = 0
+                if len(tracknr) == 1:
+                    tracknr = '00'
+                    disknr = 1
+                    artist = albumpath[len(albumpath)-2]
+                elif len(tracknr) == 2:
+                    disknr = 1
                     track = tracknr[0].strip()
                     artist = albumpath[len(albumpath)-2]
                 else:

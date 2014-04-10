@@ -37,7 +37,7 @@ def copy(src, dest):
 #               get the inital from the second token
 def get_initial (artist):
         words = artist.split()
-        print (words)
+        #print (words)
         if any(words[0].upper() == x for x in ('THE','A','DER','DIE')):
                 initial = words[1][0].upper()
         else:
@@ -71,7 +71,7 @@ def is_available (path,artist,file):
 #readline.parse_and_bind("tab: complete")
 #readline.set_completer(complete)
 try:
-    print (sys.argv)
+    #print (sys.argv)
     myoptions, myargs = getopt.getopt(sys.argv[2:],"p:s:d:a:")
 except getopt.GetoptError as e:
     print (str(e))
