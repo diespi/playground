@@ -73,6 +73,9 @@ except getopt.GetoptError as e:
     print (str(e))
     print("Usage: %s -s -d" % sys.argv[0])
     sys.exit(2)
+if len(sys.argv) < 2:
+    print("Usage:  %s <cmd> -s -d" % sys.argv[0])
+    sys.exit(2)
 cmd = sys.argv[1]
 
 
