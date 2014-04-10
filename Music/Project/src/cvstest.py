@@ -75,6 +75,7 @@ class myplaylist(object):
             if '.mp3' in line:
                 # format is rootpath/artist/album 
                 tracknr =line.split('-')
+                print ("Track-Nr",tracknr, len (tracknr))
                 line = os.path.dirname(item)
                 albumpath = line.split('\\')
                 album = albumpath[len(albumpath)-1]
@@ -92,15 +93,15 @@ class myplaylist(object):
                         disknr = tracknr[0]
                         artist = albumpath[len(albumpath)-2]
                     else:
-                        track = tracknr[0].trim()
-                        artist = tracknr[1].strip()
+                        track = tracknr[0].strip()
+                        artist = tracknr[1]
                 
                 title = tracknr[len(tracknr)-1].strip('.mp3')
                 newsong=songt('')
-                newsong.title = title
-                newsong.artist = artist
-                newsong.album = album
-                newsong.track = track
+                newsong.title = title.strip()
+                newsong.artist = artist.strip()
+                newsong.album = album.strip()
+                newsong.track = track.strip()
                 newsong.disk = disknr
                 newsong.location = item
                 # todo: check for duplicates

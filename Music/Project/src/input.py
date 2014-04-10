@@ -14,6 +14,7 @@ def complete(text, state):
 
 def mkdir_recursive( path):
         try:
+                print(path)
                 os.makedirs(path)
         except os.error as e:
                 if e.errno != errno.EEXIST:
@@ -36,6 +37,7 @@ def copy(src, dest):
 #               get the inital from the second token
 def get_initial (artist):
         words = artist.split()
+        print (words)
         if any(words[0].upper() == x for x in ('THE','A','DER','DIE')):
                 initial = words[1][0].upper()
         else:
@@ -54,7 +56,8 @@ def is_available (path,artist,file):
         return(file2)
     if os.path.isfile(file3):
         return(file3)
-    
+    if initial1 == initial2:
+        return ('')
     name = artist.split(' ',1)
     if len(name) > 1:
         artist = name[1]
@@ -68,6 +71,7 @@ def is_available (path,artist,file):
 #readline.parse_and_bind("tab: complete")
 #readline.set_completer(complete)
 try:
+    print (sys.argv)
     myoptions, myargs = getopt.getopt(sys.argv[2:],"p:s:d:a:")
 except getopt.GetoptError as e:
     print (str(e))
@@ -145,7 +149,7 @@ if cmd == 'create' or cmd == 'copy':
         destlist.add(song)
         initial = get_initial(song.artist)
         #print(initial, song.artist)
-        filename = song.track +" -" + song.title +".mp3"
+        filename = song.track +" - " + song.title +".mp3"
         file_path = os.path.join(song.album,filename)
         
         file = is_available(dest_path,song.artist,file_path)
