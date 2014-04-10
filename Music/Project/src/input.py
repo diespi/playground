@@ -42,7 +42,27 @@ def get_initial (artist):
                 initial = words[0][0].upper()
         return(initial)
 
-
+def is_available (path,artist,file):
+    initial1 = get_initial(artist)
+    file1 =  os.path.join(path,artist,file)
+    file2 =  os.path.join(path,initial1,artist,file)
+    initial2 = artist [0]
+    file3 = os.path.join(path,initial2,artist,file)
+    if os.path.isfile(file1):
+        return (file1)
+    if os.path.isfile(file2):
+        return(file2)
+    if os.path.isfile(file3):
+        return(file3)
+    
+    name = artist.split(' ',1)
+    if len(name) > 1:
+        artist = name[1]
+    else:
+        return('')
+    if is_available (path,artist,file):
+            return (file)
+    return ('')
 
 #readline.set_completer_delims(' \t\n;')
 #readline.parse_and_bind("tab: complete")
@@ -54,7 +74,7 @@ except getopt.GetoptError as e:
     print("Usage: %s -s -d" % sys.argv[0])
     sys.exit(2)
 cmd = sys.argv[1]
-print(sys.argv)
+
 
 if cmd in ('create','copy', 'compare', 'check'): 
     
@@ -63,7 +83,6 @@ if cmd in ('create','copy', 'compare', 'check'):
     dest_path =''
     
     for o, a in myoptions:
-        print(o,a)
         if o == '-s':
             if a != '':
                 source_path = a
@@ -91,10 +110,17 @@ if cmd in ('create','copy', 'compare', 'check'):
 else:
     print("Usage:<command> %s -s -d" % sys.argv[0])
     sys.exit(2)
+from cvstest import basedir
+
+if cmd == 'check':
+    is_available("The Beatles",basedir)
+    sys.exit(1)
+    
 
 if cmd == 'create' or cmd == 'copy':
     if playlist != '':
         newlist = myplaylist(playlist)
+        destlist = myplaylist(playlist +"copy")
     else:
         print ("playlist name required - use -p <playlist>")
         sys.exit(2)
@@ -113,21 +139,31 @@ if cmd == 'create' or cmd == 'copy':
         else:
             print("creating" ,dest_path)
     for song in newlist.songlist:
+        destlist.add(song)
         initial = get_initial(song.artist)
         #print(initial, song.artist)
         filename = song.track +" -" + song.title +".mp3"
-        file_path = os.path.join(dest_path, initial,song.artist,song.album)
-        filename = os.path.join(file_path,filename)
-        if os.path.isdir(file_path):
-            if os.path.isfile(filename):
-                print (filename, "aleady exists")
-            else:
-                copy(song.location,filename)
+        file_path = os.path.join(song.album,filename)
+        
+        file = is_available(dest_path,song.artist,file_path)
+        if file != '':
+            song.location = file
+            continue
+            #print (file, "aleady exists")
         else:
-            mkdir_recursive(file_path)
-            copy(song.location,filename)
+            # dest_path is root
+            # need a subfolder with initial
+            # need to create artist/ablbum
+            # and copy filename
             
-        #copy(song.location,filepath)
+            file_path = os.path.join(dest_path,initial,song.artist,song.album)
+            mkdir_recursive(file_path)
+            filename = os.path.join(file_path,filename)
+            copy(song.location,filename)
+            song.location = filename
+    destlist.writemu3()
+            
+       
         
 # music folder structure:
 #       /root_path/%Inital%/%artist%/%album%/%tracknr% - %title%.mp3

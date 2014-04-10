@@ -16,6 +16,11 @@ i=0
 j=0
 #print ('Number of arguments:', len(sys.argv), 'arguments.')
 #print ('Argument List:', str(sys.argv))
+
+
+# -------------------------------
+
+# this is just a place holder for junk 
 try:
     opts, args = getopt.getopt(sys.argv[1:],"hp:",["help","playlist="])
 except getopt.GetoptError:
@@ -74,6 +79,48 @@ class Application(tk.Frame):
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
+
+
+# split artist and create all permutations to find a song
+# e.g. The Beatles
+# - /root/The Beatles/
+# - / root/Beatles/
+# - /root/B/The beatles
+# - /root/B/Beatles
+# - /root/T/ The Beatles
+# - /root/T/Beatles
+import os
+from input import get_initial
+def is_available (file):
+    initial1 = get_initial(file)
+    file1 =  os.path.join(basedir,file)
+    file2 =  os.path.join(basedir,initial1,file)
+    initial2 = file [0]
+    file3 = os.path.join(basedir,initial2,file)
+    print(file1)
+    print(file2)
+    print(file3)
+    
+    if os.path.isdir(file1)or os.path.isdir(file2) or os.path.isdir(file3):
+        return(1)
+    
+    name = file.split(' ',1)
+    file = name[1]
+    if file =='':
+        return(0)
+    if is_available (file):
+            return (1)
+    return (0)
+if initial1 == initial2:
+
+basedir =''
+artist = "The Beatles"
+artist_list = artist.split()
+
+for name in artist_list:
+    
+    if is_available(artist):
+        print ("is avalable")
 
 #for item in broken:
 #    print (item)

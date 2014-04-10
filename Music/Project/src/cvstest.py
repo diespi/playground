@@ -37,35 +37,31 @@ class myplaylist(object):
         self.songlist.append(song)
         self.maxsongs+=1
         
-    def listsong (self):
+    def listsongs (self):
+        # print a breif list of songs in the playlist
         for i in self.songlist:
-            print (i.title)
+            print (i.artist,"-",i.title)
+    
     def writemu3 (self):
+        # create a playlist file sorted by title
         listname = self.name + '.m3u'
         fname = path.join(basedir,listname)
         ID = 0
         mu3file=open(fname,'w')
-        old = []
         slist=sorted (self.songlist, key=lambda songt: songt.title)
         for element in slist:
-            if 'Paint' in element.title:
-                print (old.title,old.artist,element.title,element.artist)
-            if old != []:
-                if old.title == element.title and old.artist == element.artist:
-                    if 'Paint' in element.title:
-                        print (element.title,element.artist,'cont')
-                    continue
-                
-            if 'Paint' in element.title:
-                print('write')
             ID =ID+1
             mu3file.write("#EXTINF:%d," % ID)
             mu3file.write("%s - " % element.title)
             mu3file.write("%s\n" % element.artist)
             mu3file.write("%s\n" % element.location)
-            old = element
         mu3file.close() 
+    
     def readmu3 (self,mypath):
+        # walk through a given directory and find all the mp3 files.
+        # append files to a given playlist
+        # files and directories should have a pre defines structure
+        # like amazon or itunes are organizing their folders
         
         file_paths = [] 
         for dirpath, dirnames, files in os.walk(mypath):
@@ -88,16 +84,17 @@ class myplaylist(object):
                 # track - artist - title
                 if len(tracknr) == 2:
                     disknr = 0
-                    track = tracknr[0]
+                    track = tracknr[0].strip()
                     artist = albumpath[len(albumpath)-2]
                 else:
                     if tracknr[1].isdigit():
-                        track = tracknr[1]
+                        track = tracknr[1].strip()
                         disknr = tracknr[0]
                         artist = albumpath[len(albumpath)-2]
                     else:
-                        track = tracknr[0]
-                        artist = tracknr[1]
+                        track = tracknr[0].trim()
+                        artist = tracknr[1].strip()
+                
                 title = tracknr[len(tracknr)-1].strip('.mp3')
                 newsong=songt('')
                 newsong.title = title
@@ -106,10 +103,17 @@ class myplaylist(object):
                 newsong.track = track
                 newsong.disk = disknr
                 newsong.location = item
+                # todo: check for duplicates
                 self.songlist.append(newsong)
         #return (self.songlist)                
                 
 class songt(object):
+    # a song object holds all the meta data of a song
+    # it can be initialized by a CVS file exported from itunes
+    # I am only interested in a few fields
+    # sometimes itunes screws up the location in that case I leave it empty.
+    # todo try to repair the location
+    # todo normalized and non normalized locations
           
         def __init__(self,songlist):
 
@@ -127,7 +131,22 @@ class songt(object):
 
         def viewsong(self):
             print (self.location)
+        def check_location (self):
+            if os.path.isfile(self.location):
+                return (1)
+            else:
+                return (0)
+# todo fuzzy match
 def songs_match(song1,song2):
+    # compare two songs
+    #    0 - not used
+    #    1 - no match in title
+    #    2 - same title
+    #    3 - same title and artist
+    #    4 - same title and artist and album
+    #    5 - rating is already set
+    #    6 - rating has to be updated
+    
     #print(song1.title,song2.title)
     #if fuzz.token_set_ratio(song1.title,song2.title) >90:
     if song1.title == song2.title:
@@ -153,6 +172,9 @@ def songs_match(song1,song2):
 
 
     return (0)
+
+# function to read a cvs formatted file and put all songs into a playlist
+# basedir of files can be configured
 
 def readlist(filename,playlistname):
     i=0
