@@ -56,7 +56,7 @@ class myplaylist(object):
             mu3file.write("#EXTINF:%d," % ID)
             mu3file.write("%s - " % element.title)
             mu3file.write("%s\n" % element.artist)
-            mu3file.write("%s\n" % element.location)
+            mu3file.write("%s\n" % create_rel_path(element.location))
         mu3file.close() 
     
     def readmu3 (self,mypath):
@@ -78,8 +78,9 @@ class myplaylist(object):
                 # format is rootpath/artist/album 
                 tracknr =line.split('-')
                 line = os.path.dirname(item)
-                albumpath = line.split('\\')
+                albumpath = os.path.split(line)
                 album = albumpath[len(albumpath)-1]
+                albumpath = os.path.split(albumpath[0])
                 #support 3 formats
                 # track - title -> len == 2
                 # disk-track - title
@@ -87,7 +88,7 @@ class myplaylist(object):
                 if len(tracknr) == 2:
                     disknr = 0
                     track = tracknr[0].strip()
-                    artist = albumpath[len(albumpath)-2]
+                    artist = albumpath[len(albumpath)-1]
                     title = tracknr[len(tracknr)-1].strip('.mp3')
                 else:
                     # track is not formatted properly or has extra '-'
@@ -205,3 +206,14 @@ def readlist(filename,playlistname):
             continue      
                     
     return()
+
+def create_rel_path(filename):
+    line = os.path.basename(filename)
+    folder = os.path.dirname(filename)
+    folders = os.path.split(folder)
+    folder1 = folders[1]
+    folder2 = os.path.split(folders[0])[1]
+
+
+    rel_path = os.path.join('.',folder2,folder1,line)
+    return(rel_path)
