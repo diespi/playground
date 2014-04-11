@@ -22,6 +22,7 @@ j=0
 
 # this is just a place holder for junk 
 from cvstest import *
+from id3 import *
 
 
 #songs = myplaylist(inputfile)

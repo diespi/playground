@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import codecs, os
 from os import path
+import stagger
+from stagger.id3 import  *
 #from fuzzywuzzy import fuzz
 broken =[]
 import configparser
@@ -86,16 +88,26 @@ class myplaylist(object):
                     disknr = 0
                     track = tracknr[0].strip()
                     artist = albumpath[len(albumpath)-2]
+                    title = tracknr[len(tracknr)-1].strip('.mp3')
                 else:
-                    if tracknr[1].isdigit():
-                        track = tracknr[1].strip()
-                        disknr = tracknr[0]
-                        artist = albumpath[len(albumpath)-2]
-                    else:
-                        track = tracknr[0].trim()
-                        artist = tracknr[1].strip()
+                    # track is not formatted properly or has extra '-'
+                    # try to read the id-tag from the file
+                    tag = stagger.read_tag(item)
+                    track = str.format("%02d" % tag.track)
+                    artist = tag.artist
+                    title = tag.title
+                    disknr = 1
+                    album = tag.album
+                    print(artist,album,track,title)
+                    #if tracknr[1].isdigit():
+                        #   track = tracknr[1].strip()
+                        #  disknr = tracknr[0]
+                        # artist = albumpath[len(albumpath)-2]
+                    #else:
+                        #track = tracknr[0].trim()
+                        #artist = tracknr[1].strip()
                 
-                title = tracknr[len(tracknr)-1].strip('.mp3')
+                
                 newsong=songt('')
                 newsong.title = title
                 newsong.artist = artist

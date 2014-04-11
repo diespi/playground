@@ -60,10 +60,9 @@ def is_available (path,artist,file):
         artist = name[1]
     else:
         return('')
-    if is_available (path,artist,file):
-            return (file)
-    return ('')
-
+    file = is_available (path,artist,file)
+    return (file)
+    
 #readline.set_completer_delims(' \t\n;')
 #readline.parse_and_bind("tab: complete")
 #readline.set_completer(complete)
@@ -142,7 +141,7 @@ if cmd == 'create' or cmd == 'copy':
         destlist.add(song)
         initial = get_initial(song.artist)
         #print(initial, song.artist)
-        filename = song.track +" -" + song.title +".mp3"
+        filename = str(song.track) +" - " + song.title +".mp3"
         file_path = os.path.join(song.album,filename)
         
         file = is_available(dest_path,song.artist,file_path)
