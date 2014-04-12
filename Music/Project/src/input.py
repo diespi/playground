@@ -36,6 +36,7 @@ def copy(src, dest):
 #               get the inital from the second token
 def get_initial (artist):
         words = artist.split()
+        #print (words)
         if any(words[0].upper() == x for x in ('THE','A','DER','DIE')):
                 initial = words[1][0].upper()
         else:
@@ -54,23 +55,29 @@ def is_available (path,artist,file):
         return(file2)
     if os.path.isfile(file3):
         return(file3)
-    
+    if initial1 == initial2:
+        return ('')
     name = artist.split(' ',1)
     if len(name) > 1:
         artist = name[1]
     else:
         return('')
-    file = is_available (path,artist,file)
-    return (file)
-    
+    if is_available (path,artist,file):
+            return (file)
+    return ('')
+
 #readline.set_completer_delims(' \t\n;')
 #readline.parse_and_bind("tab: complete")
 #readline.set_completer(complete)
 try:
+    #print (sys.argv)
     myoptions, myargs = getopt.getopt(sys.argv[2:],"p:s:d:a:")
 except getopt.GetoptError as e:
     print (str(e))
     print("Usage: %s -s -d" % sys.argv[0])
+    sys.exit(2)
+if len(sys.argv) < 2:
+    print("Usage:  %s <cmd> -s -d" % sys.argv[0])
     sys.exit(2)
 cmd = sys.argv[1]
 
