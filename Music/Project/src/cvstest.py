@@ -1,6 +1,8 @@
 #!/usr/bin/python
 import codecs, os
 from os import path
+import stagger
+from stagger.id3 import  *
 #from fuzzywuzzy import fuzz
 broken =[]
 import configparser
@@ -54,7 +56,7 @@ class myplaylist(object):
             mu3file.write("#EXTINF:%d," % ID)
             mu3file.write("%s - " % element.title)
             mu3file.write("%s\n" % element.artist)
-            mu3file.write("%s\n" % element.location)
+            mu3file.write("%s\n" % create_rel_path(element.location))
         mu3file.close() 
     
     def readmu3 (self,mypath):
@@ -74,33 +76,39 @@ class myplaylist(object):
             # only if its an mp3 file
             if '.mp3' in line:
                 # format is rootpath/artist/album 
-                tracknr =line.split(' - ')
-                print ("Track-Nr",tracknr, len (tracknr))
+                tracknr =line.split('-')
                 line = os.path.dirname(item)
-                albumpath = line.split('\\')
+                albumpath = os.path.split(line)
                 album = albumpath[len(albumpath)-1]
+                albumpath = os.path.split(albumpath[0])
                 #support 3 formats
                 # track - title -> len == 2
                 # disk-track - title
                 # track - artist - title
-                if len(tracknr) == 1:
-                    tracknr = '00'
-                    disknr = 1
-                    artist = albumpath[len(albumpath)-2]
-                elif len(tracknr) == 2:
-                    disknr = 1
+                if len(tracknr) == 2:
+                    disknr = 0
                     track = tracknr[0].strip()
-                    artist = albumpath[len(albumpath)-2]
-                else:
-                    if tracknr[1].isdigit():
-                        track = tracknr[1].strip()
-                        disknr = tracknr[0]
-                        artist = albumpath[len(albumpath)-2]
-                    else:
-                        track = tracknr[0].strip()
-                        artist = tracknr[1]
+                    artist = albumpath[len(albumpath)-1]
+                    title = tracknr[len(tracknr)-1].strip('.mp3')
+                else:               
+                    # track is not formatted properly or has extra '-'
+                    # try to read the id-tag from the file
+                    tag = stagger.read_tag(item)
+                    track = str.format("%02d" % tag.track)
+                    artist = tag.artist
+                    title = tag.title
+                    disknr = 1
+                    album = tag.album
+                    print(artist,album,track,title)
+                    #if tracknr[1].isdigit():
+                        #   track = tracknr[1].strip()
+                        #  disknr = tracknr[0]
+                        # artist = albumpath[len(albumpath)-2]
+                    #else:
+                        #track = tracknr[0].trim()
+                        #artist = tracknr[1].strip()
                 
-                title = tracknr[len(tracknr)-1].strip('.mp3')
+                
                 newsong=songt('')
                 newsong.title = title.strip()
                 newsong.artist = artist.strip()
@@ -198,3 +206,14 @@ def readlist(filename,playlistname):
             continue      
                     
     return()
+
+def create_rel_path(filename):
+    line = os.path.basename(filename)
+    folder = os.path.dirname(filename)
+    folders = os.path.split(folder)
+    folder1 = folders[1]
+    folder2 = os.path.split(folders[0])[1]
+
+
+    rel_path = os.path.join('.',folder2,folder1,line)
+    return(rel_path)
