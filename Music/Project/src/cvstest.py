@@ -68,8 +68,25 @@ class myplaylist(object):
             mu3file.write("%s - " % element.title)
             mu3file.write("%s\n" % element.artist)
             mu3file.write("%s\n" % create_rel_path(element.location))
-        mu3file.close() 
-    
+        mu3file.close()
+         
+    def readlist(self,filename,playlistname):
+        i=0
+        
+        songreader = codecs.open(filename,'r',encoding='utf-8',errors='ignore')
+        for line in songreader:
+            try:
+                row = line.split('\t')
+                if len(row) >= rowlen-1:
+                    if i > 0:
+                        mysong = songt(row)
+                        playlistname.add(mysong)
+                    i+=1
+            except UnicodeDecodeError:
+                continue      
+                    
+        return()
+
     def readmu3 (self,mypath):
         # walk through a given directory and find all the mp3 files.
         # append files to a given playlist
@@ -131,6 +148,7 @@ class myplaylist(object):
                 #print(item)
                 # todo: check for duplicates
                 self.songlist.append(newsong)
+              
         #return (self.songlist)                
                 
 class songt(object):
@@ -144,16 +162,18 @@ class songt(object):
         def __init__(self,songlist):
 
             if songlist:
-                self.artist = songlist[1]
-                self.title = songlist[0]
-                self.album = songlist[3]
+                self.artist = songlist[1].strip()
+                self.title = songlist[0].strip()
+                self.album = songlist[3].strip()
                 self.disk = songlist[8]
-                self.track = songlist[10]
+                self.track = songlist[10].strip()
                 self.rating = songlist[25]
                 if len (songlist) == rowlen:
                     self.location = songlist[26]
                 else:
                     self.location =''
+            else:
+                self.rating = ''
 
         def viewsong(self):
             print (self.location)
@@ -177,9 +197,11 @@ def songs_match(song1,song2):
     #if fuzz.token_set_ratio(song1.title,song2.title) >90:
     if song1.title == song2.title:
         #if fuzz.token_set_ratio(song1.artist,song2.artist) >90:
+        #
         if song1.artist == song2.artist:
             #if fuzz.token_set_ratio(song1.album,song2.album) >90:
-            if song1.album == song2.album:
+            #print(song1.album,song2.album)
+            if song1.album.upper() == song2.album.upper():
                 if song2.location != '':
                     if song2.rating != Fourstar:
                         #print(song1.title, song1.artist,song1.album)
@@ -234,22 +256,5 @@ def is_available (path,artist,file):
     if is_available (path,artist,file):
             return (file)
     return ('')
-def readlist(filename,playlistname):
-    i=0
-    fname = path.join(basedir,filename)
-    print(fname)
-    songreader = codecs.open(fname,'r',encoding='utf-8',errors='ignore')
-    for line in songreader:
-        try:
-            row = line.split('\t')
-            if len(row) >= rowlen-1:
-                if i > 0:
-                    mysong = songt(row)
-                    playlistname.add(mysong)
-                i+=1
-        except UnicodeDecodeError:
-            continue      
-                    
-    return()
-from input import get_initial
+
 

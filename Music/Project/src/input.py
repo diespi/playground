@@ -4,7 +4,7 @@ import glob
 import os
 import errno
 import shutil
-from cvstest import get_initial,is_available,myplaylist
+from cvstest import get_initial,is_available,myplaylist,songs_match
 
 
 
@@ -45,7 +45,7 @@ def copy(src, dest):
 #readline.set_completer(complete)
 try:
     #print (sys.argv)
-    myoptions, myargs = getopt.getopt(sys.argv[2:],"p:s:d:a:")
+    myoptions, myargs = getopt.getopt(sys.argv[2:],"p:s:d:a:m:q:")
 except getopt.GetoptError as e:
     print (str(e))
     print("Usage: %s -s -d" % sys.argv[0])
@@ -59,8 +59,10 @@ cmd = sys.argv[1]
 if cmd in ('create','copy', 'compare', 'check'): 
     
     playlist = ''
+    playlistq = ''
     source_path = ''
     dest_path =''
+    cmp_mode = ''
     
     for o, a in myoptions:
         if o == '-s':
@@ -68,11 +70,9 @@ if cmd in ('create','copy', 'compare', 'check'):
                 source_path = a
             else:
                 source_path=input('Path to source folder? ')
-            if os.path.isdir(source_path):
-                print (source_path, "exists")
-            else:
-                print("Usage: %s -s -d" % sys.argv[0],a )
-                sys.exit(2)
+            #if not os.path.isdir(source_path):    
+                #print("no such folder: Usage: %s -s -d" % sys.argv[0],a )
+                #sys.exit(2)
         elif o == '-d':
             if a != '':
                 dest_path =a
@@ -84,9 +84,18 @@ if cmd in ('create','copy', 'compare', 'check'):
             print (get_initial(artist))
         elif o == '-p':
             playlist = a 
-            print(playlist)
-            if os.path.isdir(playlist):
+            if os.path.isfile(playlist):
                 print (playlist ,"exists and will be overwritten")
+        elif o == '-q':
+            playlistq = a 
+            if os.path.isfile(playlistq):
+                print (playlist ,"exists and will be overwritten")
+        elif o == '-m':
+            cmp_mode = a 
+            if not cmp_mode in ('dsk2dsk', 'dsk2plist', 'plist2dsk', 'plist2plist'):
+                print ( "please provide a valid mode ")
+            if playlist == '' or playlistq =='':
+                print ( "please provide a valid playlist names ",playlist,playlistq)
 else:
     print("Usage:<command> %s -s -d" % sys.argv[0])
     sys.exit(2)
@@ -96,7 +105,94 @@ if cmd == 'check':
     is_available("The Beatles",basedir)
     sys.exit(1)
     
+if cmd == 'compare':
+    if cmp_mode =='':
+        print ( "please provide a valid mode ")
+        sys.exit(2)
+    # compare 2 dirs or csvs
+    
+    
+    if cmp_mode in ('dsk2dsk', 'dsk2plist'):
+        if source_path == '':
+            print ("this operation requires a valid directory")
+            sys.exit(2)
+        if not os.path.isdir(source_path):
+            print ("this operation requires a valid directory")
+            sys.exit(2)
+        playlista = myplaylist(playlist)
+        playlista.readmu3(source_path)
+        
+        
+    if cmp_mode in('dsk2dsk','plist2dsk'):
+        if dest_path == '':
+            print ("this operation requires a valid directory")
+            sys.exit(2)
+        if not os.path.isdir(dest_path):
+            print ("this operation requires a valid directory")
+            sys.exit(2)
+        playlistb = myplaylist(playlistq)
+        playlistb.readmu3(dest_path)
+    
+    if cmp_mode in ('plist2plist', 'plist2dsk'):
+        if playlist == '':
+            print ("this operation requires a valid playlist")
+            sys.exit(2)
+        if not os.path.isfile(source_path):
+            print ("this operation requires a valid path to the cvs file")
+            sys.exit(2)
+        playlista = myplaylist(playlist)
+        playlista.readlist(source_path,playlista)
+        
+    if cmp_mode in('plist2plist','dsk2plist'):
+        if dest_path == '':
+            print ("this operation requires a valid playlist")
+            sys.exit(2)
+        if not os.path.isfile(dest_path):
+            print ("this operation requires a valid path to the cvs file")
+            sys.exit(2)
+    
+        playlistb = myplaylist(playlistq)
+        playlistb.readlist(dest_path,playlistb)
+        
+    
+    missinga = myplaylist(playlist +"missing")
+    missingb = myplaylist(playlistq +"missing")
+    
+    match = 0
+    for songa in playlista.songlist:
+        for songb in playlistb.songlist:
+            ret = songs_match(songa,songb)
+            if  ret == 6:
+                #print ("match-a",songa.title,songb.title)
+                match =1
+                break
+            else:
+                if ret > 1:
+                    print (ret)
+        if match == 0:
+            missinga.songlist.append(songa)
+        else:
+            match =0
+                #playlista.songlist.remove(songa)
 
+                #playlistb.songlist.remove(songb)
+                #print ("song missing",songb.location)
+    for songb in playlistb.songlist:
+        for songa in playlista.songlist:
+            if songs_match(songa,songb) == 6:
+                #print ("match-a",songa.title,songb.title)
+                match =1
+                break
+        if match == 0:
+            missingb.songlist.append(songb)
+        else:
+            match =0        
+    #playlista.writemu3()
+    #playlistb.writemu3()
+    missinga.writemu3()
+    missingb.writemu3()
+    sys.exit()
+            
 if cmd == 'create' or cmd == 'copy':
     if playlist != '':
         newlist = myplaylist(playlist)
