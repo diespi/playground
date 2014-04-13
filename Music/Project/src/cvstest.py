@@ -21,6 +21,17 @@ delimiter = config['file format']['delimiter']
 rowlen = int (config['file format']['default rowlen'])
 
 #-------------------------------------------------------------------------------------------------    
+def create_rel_path(filename):
+    line = os.path.basename(filename)
+    folder = os.path.dirname(filename)
+    folders = os.path.split(folder)
+    folder1 = folders[1]
+    folder2 = os.path.split(folders[0])[1]
+    initial = get_initial(folder2)
+
+    rel_path = os.path.join('.',initial,folder2,folder1,line)
+    return(rel_path)
+
 class myplaylist(object):
     
     def __init__(self,playlist_name): 
@@ -90,6 +101,7 @@ class myplaylist(object):
                     track = tracknr[0].strip()
                     artist = albumpath[len(albumpath)-1]
                     title = tracknr[len(tracknr)-1].strip('.mp3')
+                    #print("got file",artist,album,track,title)
                 else:               
                     # track is not formatted properly or has extra '-'
                     # try to read the id-tag from the file
@@ -99,7 +111,7 @@ class myplaylist(object):
                     title = tag.title
                     disknr = 1
                     album = tag.album
-                    print(artist,album,track,title)
+                    #print("got fromid3",artist,album,track,title)
                     #if tracknr[1].isdigit():
                         #   track = tracknr[1].strip()
                         #  disknr = tracknr[0]
@@ -116,6 +128,7 @@ class myplaylist(object):
                 newsong.track = track.strip()
                 newsong.disk = disknr
                 newsong.location = item
+                #print(item)
                 # todo: check for duplicates
                 self.songlist.append(newsong)
         #return (self.songlist)                
@@ -188,7 +201,39 @@ def songs_match(song1,song2):
 
 # function to read a cvs formatted file and put all songs into a playlist
 # basedir of files can be configured
-
+def get_initial (artist):
+        words = artist.split()
+        #print (words)
+        if any(words[0].upper() == x for x in ('THE','A','DER','DIE')):
+                initial = words[1][0].upper()
+        else:
+                initial = words[0][0].upper()
+        if initial in ('\'', '#', '[', '('):
+            initial = words[0][1].upper()
+        return(initial)
+    
+def is_available (path,artist,file):
+    initial1 = get_initial(artist)
+    file1 =  os.path.join(path,artist,file)
+    file2 =  os.path.join(path,initial1,artist,file)
+    initial2 = artist [0]
+    file3 = os.path.join(path,initial2,artist,file)
+    if os.path.isfile(file1):
+        return (file1)
+    if os.path.isfile(file2):
+        return(file2)
+    if os.path.isfile(file3):
+        return(file3)
+    if initial1 == initial2:
+        return ('')
+    name = artist.split(' ',1)
+    if len(name) > 1:
+        artist = name[1]
+    else:
+        return('')
+    if is_available (path,artist,file):
+            return (file)
+    return ('')
 def readlist(filename,playlistname):
     i=0
     fname = path.join(basedir,filename)
@@ -206,14 +251,5 @@ def readlist(filename,playlistname):
             continue      
                     
     return()
+from input import get_initial
 
-def create_rel_path(filename):
-    line = os.path.basename(filename)
-    folder = os.path.dirname(filename)
-    folders = os.path.split(folder)
-    folder1 = folders[1]
-    folder2 = os.path.split(folders[0])[1]
-
-
-    rel_path = os.path.join('.',folder2,folder1,line)
-    return(rel_path)

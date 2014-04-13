@@ -4,7 +4,9 @@ import glob
 import os
 import errno
 import shutil
-from cvstest import myplaylist
+from cvstest import get_initial,is_available,myplaylist
+
+
 
 
 
@@ -35,37 +37,8 @@ def copy(src, dest):
 #       if artist starts with 'A '
 #       if artist starts with # 10CC TenCC ?? 4 four ...
 #               get the inital from the second token
-def get_initial (artist):
-        words = artist.split()
-        #print (words)
-        if any(words[0].upper() == x for x in ('THE','A','DER','DIE')):
-                initial = words[1][0].upper()
-        else:
-                initial = words[0][0].upper()
-        return(initial)
 
-def is_available (path,artist,file):
-    initial1 = get_initial(artist)
-    file1 =  os.path.join(path,artist,file)
-    file2 =  os.path.join(path,initial1,artist,file)
-    initial2 = artist [0]
-    file3 = os.path.join(path,initial2,artist,file)
-    if os.path.isfile(file1):
-        return (file1)
-    if os.path.isfile(file2):
-        return(file2)
-    if os.path.isfile(file3):
-        return(file3)
-    if initial1 == initial2:
-        return ('')
-    name = artist.split(' ',1)
-    if len(name) > 1:
-        artist = name[1]
-    else:
-        return('')
-    if is_available (path,artist,file):
-            return (file)
-    return ('')
+
 
 #readline.set_completer_delims(' \t\n;')
 #readline.parse_and_bind("tab: complete")
@@ -164,10 +137,16 @@ if cmd == 'create' or cmd == 'copy':
             # and copy filename
             
             file_path = os.path.join(dest_path,initial,song.artist,song.album)
+            #print ("filepath",file_path)
             mkdir_recursive(file_path)
             filename = os.path.join(file_path,filename)
-            copy(song.location,filename)
-            song.location = filename
+            #names = os.listdir(song.location )
+            #print ("os.listdir",names)
+            if os.path.isfile(song.location):
+                copy(song.location,filename)
+                song.location = filename
+            else:
+                print ("missing source file :",song.location)
     destlist.writemu3()
             
        
