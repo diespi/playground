@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import codecs, os
+import codecs, os, re
 from os import path
 import stagger
 from stagger.id3 import  *
@@ -65,9 +65,13 @@ class myplaylist(object):
         for element in slist:
             ID =ID+1
             mu3file.write("#EXTINF:%d," % ID)
-            mu3file.write("%s - " % element.title)
-            mu3file.write("%s\n" % element.artist)
-            mu3file.write("%s\n" % create_rel_path(element.location))
+            try:
+                mu3file.write("%s - " % element.title)
+                mu3file.write("%s\n" % element.artist)
+                mu3file.write("%s\n" % create_rel_path(element.location))
+            except:
+                print(element.location)
+                
         mu3file.close()
          
     def readlist(self,filename,playlistname):
@@ -94,7 +98,9 @@ class myplaylist(object):
         # like amazon or itunes are organizing their folders
         
         file_paths = [] 
+        print ("PATH: ",mypath)
         for dirpath, dirnames, files in os.walk(mypath):
+            
             for filename in files:
                 filepath = os.path.join(dirpath,filename)
                 file_paths.append(filepath) 
@@ -122,12 +128,13 @@ class myplaylist(object):
                 else:               
                     # track is not formatted properly or has extra '-'
                     # try to read the id-tag from the file
+                    #print("Tag read: ",item)
                     tag = stagger.read_tag(item)
                     track = str.format("%02d" % tag.track)
-                    artist = tag.artist
-                    title = tag.title
+                    artist = re.sub(r'[^\w]', ' ', tag.artist)
+                    title = re.sub(r'[^\w]', ' ', tag.title)
                     disknr = 1
-                    album = tag.album
+                    album = re.sub(r'[^\w]', ' ', tag.album)
                     #print("got fromid3",artist,album,track,title)
                     #if tracknr[1].isdigit():
                         #   track = tracknr[1].strip()
@@ -224,8 +231,10 @@ def songs_match(song1,song2):
 # function to read a cvs formatted file and put all songs into a playlist
 # basedir of files can be configured
 def get_initial (artist):
+    if artist != '':
         words = artist.split()
         #print (words)
+        
         if any(words[0].upper() == x for x in ('THE','A','DER','DIE')):
                 initial = words[1][0].upper()
         else:
@@ -233,12 +242,19 @@ def get_initial (artist):
         if initial in ('\'', '#', '[', '('):
             initial = words[0][1].upper()
         return(initial)
+    else:
+        print("initial: ",artist)
+        return('#')
     
 def is_available (path,artist,file):
     initial1 = get_initial(artist)
     file1 =  os.path.join(path,artist,file)
     file2 =  os.path.join(path,initial1,artist,file)
-    initial2 = artist [0]
+    if artist != '':
+        initial2 = artist [0]
+    else:
+        artist = 'unknown'
+        initial2 =''
     file3 = os.path.join(path,initial2,artist,file)
     if os.path.isfile(file1):
         return (file1)
