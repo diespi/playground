@@ -2,6 +2,8 @@
 import codecs, os
 from os import path
 import stagger
+import shutil
+import errno
 from stagger.id3 import  *
 from _operator import itemgetter
 #from fuzzywuzzy import fuzz
@@ -150,9 +152,8 @@ class myplaylist(object):
                 while rootpath != mypath:
                     myrelpath=os.path.join(os.path.basename(rootpath),myrelpath)
                     rootpath=os.path.dirname(rootpath)
-                    print(myrelpath)
                 newsong.location = myrelpath
-                print(myrelpath)
+                
                 # todo: check for duplicates
                 self.songlist.append(newsong)
         #return (self.songlist)
@@ -285,3 +286,51 @@ def create_rel_path(filename):
 
     rel_path = os.path.join('.',folder2,folder1,line)
     return(rel_path)
+def get_initial (artist):
+        words = artist.split()
+        #print (words)
+        if any(words[0].upper() == x for x in ('THE','A','DER','DIE')):
+                initial = words[1][0].upper()
+        else:
+                initial = words[0][0].upper()
+        return(initial)
+
+def is_available (path,artist,file):
+    initial1 = get_initial(artist)
+    file1 =  os.path.join(path,artist,file)
+    file2 =  os.path.join(path,initial1,artist,file)
+    initial2 = artist [0]
+    file3 = os.path.join(path,initial2,artist,file)
+    if os.path.isfile(file1):
+        return (file1)
+    if os.path.isfile(file2):
+        return(file2)
+    if os.path.isfile(file3):
+        return(file3)
+    if initial1 == initial2:
+        return ('')
+    name = artist.split(' ',1)
+    if len(name) > 1:
+        artist = name[1]
+    else:
+        return('')
+    if is_available (path,artist,file):
+            return (file)
+    return ('')
+
+def mkdir_recursive( path):
+        try:
+                os.makedirs(path)
+        except os.error as e:
+                if e.errno != errno.EEXIST:
+                        raise
+
+def copy(src, dest):
+    try:
+        shutil.copytree(src, dest)
+    except OSError as e:
+        # If the error was caused because the source wasn't a directory
+        if e.errno == errno.ENOTDIR:
+            shutil.copy(src, dest)
+        else:
+            print('Directory not copied. Error: %s' % e)
