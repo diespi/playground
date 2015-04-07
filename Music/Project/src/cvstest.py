@@ -3,6 +3,7 @@ import codecs, os
 from os import path
 import stagger
 from stagger.id3 import  *
+from _operator import itemgetter
 #from fuzzywuzzy import fuzz
 broken =[]
 import configparser
@@ -57,7 +58,7 @@ class myplaylist(object):
             mu3file.write("#EXTINF:%d," % ID)
             mu3file.write("%s - " % element.title)
             mu3file.write("%s\n" % element.artist)
-            mu3file.write("%s\n" % create_rel_path(element.location))
+            mu3file.write("%s\n" % element.location)
         mu3file.close() 
     
     def readmu3 (self,mypath):
@@ -74,30 +75,51 @@ class myplaylist(object):
         
         for item in file_paths:
             line = os.path.basename(item)
+            # for now force into reading mp3 tags
             readmode=2
             # only if its an mp3 file
             if '.mp3' in line:
-                # format is rootpath/artist/album 
-                #print(line)
-                tracknr =line.split('-')
-                line = os.path.dirname(item)
-                albumpath = os.path.split(line)
-                album = albumpath[len(albumpath)-1]
-                albumpath = os.path.split(albumpath[0])
-                #support 3 formats
-                # track - title -> len == 2
-                # disk-track - title
-                # track - artist - title
                 if readmode == 1:
-                #if len(tracknr) == 2:
-                    disknr = 0
-                    track = tracknr[0].strip()
-                    artist = albumpath[len(albumpath)-1]
-                    #title = tracknr[len(tracknr)-1].strip('.mp3')
-                    title=''
-                    for j in range (len(tracknr)-1):
-                        title=title+'-'+tracknr[j+1]
-                    title = title.strip ('.mp3')
+                    # we assume no id tags need to get information from the file
+                    # format is rootpath/artist/album 
+                    #print(line)
+                    # line is the song title plus track number
+                    # track number is ususally seperated by '-' but title can contain '-' as well
+                    # itunes has disk-track titel
+                    # amazon has disk-track- title
+                    # lets split the line
+                    tracknr =line.split('-')
+                    if len(tracknr) ==1:
+                        # no dashes in the file 
+                        # a) no track number
+                        # b) track is seperated by space
+                        words=tracknr.split(' ')
+                        track=int(words[0])
+                        for j in range (len(words)-1):
+                            title=title+'-'+words[j+1]
+                        title = title.strip ('.mp3')
+                    if len(tracknr) ==2:
+                        track = tracknr[0].strip()
+                        line = os.path.dirname(item)
+                        albumpath = os.path.split(line)
+                        album = albumpath[len(albumpath)-1]
+                        albumpath = os.path.split(albumpath[0])
+                    #support 3 formats
+                    # track - title -> len == 2
+                    # disk-track - title
+                    # track - artist - title
+                        disknr = 0
+                        artist = albumpath[len(albumpath)-1]
+                        #title = tracknr[len(tracknr)-1].strip('.mp3')
+                        title=''
+                        for j in range (len(tracknr)-1):
+                            title=title+'-'+tracknr[j+1]
+                        title = title.strip ('.mp3')
+                    if len(tracknr) ==3:
+                        #todo find algorythem
+                        for j in range (len(tracknr)-1):
+                            title=title+'-'+tracknr[j+1]
+                        title = title.strip ('.mp3')
                 else:
                     # track is not formatted properly or has extra '-'
                     # try to read the id-tag from the file
@@ -105,9 +127,9 @@ class myplaylist(object):
                     track = str.format("%02d" % tag.track)
                     artist = tag.artist
                     title = tag.title
-                    disknr = 1
+                    disknr = tag.disc
                     album = tag.album
-                #print(artist,album,track,title)
+                    #print(artist,album,track,title)
                     #if tracknr[1].isdigit():
                         #   track = tracknr[1].strip()
                         #  disknr = tracknr[0]
@@ -123,8 +145,14 @@ class myplaylist(object):
                 newsong.album = album
                 newsong.track = track
                 newsong.disk = disknr
-                newsong.location = item
-                print(item)
+                rootpath=os.path.dirname(item)
+                myrelpath=os.path.basename(item)
+                while rootpath != mypath:
+                    myrelpath=os.path.join(os.path.basename(rootpath),myrelpath)
+                    rootpath=os.path.dirname(rootpath)
+                    print(myrelpath)
+                newsong.location = myrelpath
+                print(myrelpath)
                 # todo: check for duplicates
                 self.songlist.append(newsong)
         #return (self.songlist)
