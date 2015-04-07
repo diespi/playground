@@ -7,7 +7,7 @@ from stagger.id3 import  *
 broken =[]
 import configparser
 config = configparser.ConfigParser()
-config.read('.\myconfig')
+config.read('./myconfig')
 basedir =  config['default']['basedir']
 listname = config['default']['ituneslist']
 rconf = config['ratings']
@@ -49,10 +49,11 @@ class myplaylist(object):
         listname = self.name + '.m3u'
         fname = path.join(basedir,listname)
         ID = 0
-        mu3file=open(fname,'w')
+        mu3file=open(fname,'w',encoding='utf-8')
         slist=sorted (self.songlist, key=lambda songt: songt.title)
         for element in slist:
             ID =ID+1
+            print(element.location)
             mu3file.write("#EXTINF:%d," % ID)
             mu3file.write("%s - " % element.title)
             mu3file.write("%s\n" % element.artist)
@@ -73,9 +74,11 @@ class myplaylist(object):
         
         for item in file_paths:
             line = os.path.basename(item)
+            readmode=2
             # only if its an mp3 file
             if '.mp3' in line:
                 # format is rootpath/artist/album 
+                #print(line)
                 tracknr =line.split('-')
                 line = os.path.dirname(item)
                 albumpath = os.path.split(line)
@@ -85,11 +88,16 @@ class myplaylist(object):
                 # track - title -> len == 2
                 # disk-track - title
                 # track - artist - title
-                if len(tracknr) == 2:
+                if readmode == 1:
+                #if len(tracknr) == 2:
                     disknr = 0
                     track = tracknr[0].strip()
                     artist = albumpath[len(albumpath)-1]
-                    title = tracknr[len(tracknr)-1].strip('.mp3')
+                    #title = tracknr[len(tracknr)-1].strip('.mp3')
+                    title=''
+                    for j in range (len(tracknr)-1):
+                        title=title+'-'+tracknr[j+1]
+                    title = title.strip ('.mp3')
                 else:
                     # track is not formatted properly or has extra '-'
                     # try to read the id-tag from the file
@@ -99,7 +107,7 @@ class myplaylist(object):
                     title = tag.title
                     disknr = 1
                     album = tag.album
-                    print(artist,album,track,title)
+                #print(artist,album,track,title)
                     #if tracknr[1].isdigit():
                         #   track = tracknr[1].strip()
                         #  disknr = tracknr[0]
@@ -116,9 +124,41 @@ class myplaylist(object):
                 newsong.track = track
                 newsong.disk = disknr
                 newsong.location = item
+                print(item)
                 # todo: check for duplicates
                 self.songlist.append(newsong)
-        #return (self.songlist)                
+        #return (self.songlist)
+    def checkmu3 (self,mypath):
+        listname = self.name
+        mu3file=open(listname,'r',encoding='utf-8')
+        for line in mu3file:
+            if '.mp3' in line:
+                #check if file exits
+                #read the tags
+                #append to playlist
+                fpath=line.rstrip('\n')
+                #fpath=path.join(os.getcwd(),line)
+                if os.path.exists(fpath):
+                    tag = stagger.read_tag(fpath)
+                    track = str.format("%02d" % tag.track)
+                    artist = tag.artist
+                    title = tag.title
+                    disknr = 1
+                    album = tag.album
+                    #print(artist,album,track,title)
+                    newsong=songt('')
+                    newsong.title = title
+                    newsong.artist = artist
+                    newsong.album = album
+                    newsong.track = track
+                    newsong.disk = disknr
+                    newsong.location = fpath
+                    self.songlist.append(newsong)
+
+                else:
+                    print(fpath, "is missing")
+
+                    
                 
 class songt(object):
     # a song object holds all the meta data of a song

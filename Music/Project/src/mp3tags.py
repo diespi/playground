@@ -11,9 +11,12 @@
     #print ("Invalid ID3 tag:", message)
     
     
-import stagger
 import os
+
+import stagger
 from stagger.id3 import  *
+
+
 tag = stagger.read_tag(r"C:\Users\Dieter\Music\Amazon MP3\The Black Keys\El Camino\01-01- Lonely Boy.mp3")
 print (tag[TIT2 ])
 print (tag.title)

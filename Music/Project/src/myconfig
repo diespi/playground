@@ -1,5 +1,5 @@
 [default]
-basedir = C:\Users\dieter\Desktop
+basedir = /Users/dieter/Music
 ituneslist = Mist.txt
 
 [ratings]
