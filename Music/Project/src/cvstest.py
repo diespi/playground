@@ -128,7 +128,7 @@ class myplaylist(object):
                     tag = stagger.read_tag(item)
                     track = str.format("%02d" % tag.track)
                     artist = tag.artist
-                    title = tag.title
+                    title = tag.title.replace('/',' ')
                     disknr = tag.disc
                     album = tag.album
                     #print(artist,album,track,title)
@@ -171,7 +171,7 @@ class myplaylist(object):
                     tag = stagger.read_tag(fpath)
                     track = str.format("%02d" % tag.track)
                     artist = tag.artist
-                    title = tag.title
+                    title = tag.title.replace('/',' ')
                     disknr = 1
                     album = tag.album
                     #print(artist,album,track,title)
