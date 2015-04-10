@@ -49,8 +49,8 @@ class myplaylist(object):
     
     def writemu3 (self):
         # create a playlist file sorted by title
-        listname = self.name + '.m3u'
-        fname = path.join(basedir,listname)
+        listname = self.name
+        fname = path.join(os.getcwd(),listname)
         ID = 0
         mu3file=open(fname,'w',encoding='utf-8')
         slist=sorted (self.songlist, key=lambda songt: songt.title)
@@ -172,7 +172,7 @@ class myplaylist(object):
                     track = str.format("%02d" % tag.track)
                     artist = tag.artist
                     title = tag.title.replace('/',' ')
-                    disknr = 1
+                    disknr = tag.disc
                     album = tag.album
                     #print(artist,album,track,title)
                     newsong=songt('')
