@@ -1,3 +1,7 @@
+# check if songs from a playlist are  available in the destiantion directory
+# source_dir is the folder for the playlist
+# if dest-dir is empty we check against source 
+# prints the list of songs not in the destination folder
 import errno
 import glob
 import os
@@ -47,19 +51,14 @@ for o, a in myoptions:
                 print (playlist ,"exists and will be overwritten")
 
 
-#source_path=input('Path to source folder? ')
-#if os.path.isfile(source_path):
-#    print (source_path, "exists")
-#else:
-#    print("Usage: %s -s -d" % sys.argv[0],a )
-#    sys.exit(2)
-if playlist == "":
-    print("Usage: %s -s" % sys.argv[0])
-    sys.exit(2)
-    
-path=os.path.dirname(source_path)
+
+if playlist == '':
+    playlist=os.path.basename(source_path) +'.m3u8'
+if dest_path == '':
+    dest_path = source_path 
+
 newlist = myplaylist(playlist)
-print (path)
+
 os.chdir(source_path)
 newlist.checkmu3(source_path)
 for song in newlist.songlist:
