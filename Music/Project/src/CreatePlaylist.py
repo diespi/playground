@@ -7,6 +7,8 @@ import sys, getopt
 from cvstest import myplaylist
 from cvstest import basedir
 from cvstest import copy
+from cvstest import get_initial
+
 playlist = ''
 source_path = ''
 dest_path =''
@@ -45,11 +47,12 @@ if not os.path.isdir(source_path):
     print("Usage: %s -s -d" % sys.argv[0],a )
     sys.exit(2)
 if playlist == '':
-    playlist=os.path.basename(source_path)
+    playlist=os.path.basename(source_path) +'.m3u8'
+os.chdir(source_path)
 newlist = myplaylist(playlist)
 newlist.readmu3(source_path)
 newlist.writemu3()
-listname = newlist.name + '.m3u'
-fname = os.path.join(basedir,listname)
-if fname != source_path:
-    shutil.move(fname,source_path)
+#listname = newlist.name + '.m3u'
+#fname = os.path.join(basedir,listname)
+#if fname != source_path:
+#    shutil.move(fname,source_path)
