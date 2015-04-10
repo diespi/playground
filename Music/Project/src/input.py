@@ -119,11 +119,21 @@ else:
 from cvstest import basedir
 
 if cmd == 'check':
-    is_available("The Beatles",basedir)
     sys.exit(1)
+if cmd == 'create':
+    if not os.path.isdir(source_path):
+        print("Usage: %s -s -d" % sys.argv[0],a )
+        sys.exit(2)
+    if playlist == '':
+        playlist=os.path.basename(source_path) +'.m3u8'
+    os.chdir(source_path)
+    newlist = myplaylist(playlist)
+    newlist.readmu3(source_path)
+    newlist.writemu3()
+    sys.exit()
+if cmd == 'copy':
+    sys.exit()
     
-
-if cmd == 'create' or cmd == 'copy':
     if playlist != '':
         newlist = myplaylist(playlist)
         destlist = myplaylist(playlist +"copy")
