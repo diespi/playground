@@ -5,7 +5,7 @@ import stagger
 import shutil
 import errno
 from stagger.id3 import  *
-
+from _operator import itemgetter
 #from fuzzywuzzy import fuzz
 broken =[]
 import configparser
@@ -56,7 +56,7 @@ class myplaylist(object):
         slist=sorted (self.songlist, key=lambda songt: songt.title)
         for element in slist:
             ID =ID+1
-            #print(element.location)
+            print(element.location)
             mu3file.write("#EXTINF:%d," % ID)
             mu3file.write("%s - " % element.title)
             mu3file.write("%s\n" % element.artist)
