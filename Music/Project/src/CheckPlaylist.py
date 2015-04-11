@@ -2,6 +2,7 @@
 # source_dir is the folder for the playlist
 # if dest-dir is empty we check against source 
 # prints the list of songs not in the destination folder
+#encoding: utf-8
 import errno
 import glob
 import os
@@ -57,20 +58,27 @@ if playlist == '':
 if dest_path == '':
     dest_path = source_path 
 
-newlist = myplaylist(playlist)
+oldlist = myplaylist(playlist)
+newlist = myplaylist('new.m3u8')
+duplist = myplaylist('duplicate.m3u8')
 
 os.chdir(source_path)
-newlist.checkmu3(source_path)
-for song in newlist.songlist:
+oldlist.checkmu3(source_path)
+for song in oldlist.songlist:
     initial = get_initial(song.artist)
     filename = str(song.track) +" - " + song.title.replace('/',' ') +".mp3"
     file_path = os.path.join(song.album,filename)
         
     file = is_available(dest_path,song.artist,file_path)
     if file != '':
+        duplist.add(song)
         continue
             #print (file, "aleady exists")
     else:
+        newlist.add(song)
         file_path = os.path.join(dest_path,initial,song.artist,song.album)
         filename = os.path.join(file_path,filename) 
-        print("new",filename) 
+        #print("new",filename.encode('utf-8') ) 
+os.chdir(source_path)
+newlist.writemu3()
+duplist.writemu3()
