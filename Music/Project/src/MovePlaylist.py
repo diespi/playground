@@ -58,6 +58,8 @@ playlist = os.path.basename(source_path)
 path=os.path.dirname(source_path)
 newlist = myplaylist(playlist)
 destlist = myplaylist('new')
+errorlist = myplaylist('notremoved')
+
 print (path)
 os.chdir(path)
 newlist.checkmu3(source_path)
@@ -69,6 +71,7 @@ for song in newlist.songlist:
         
     file = is_available(dest_path,song.artist,file_path)
     if file != '':
+        errorlist.add(song)
         continue
             #print (file, "aleady exists")
     else:
@@ -78,5 +81,12 @@ for song in newlist.songlist:
         print("new",filename) 
         mkdir_recursive(file_path)
         copy(song.location,filename)
+        try:
+            os.remove(song.location)
+        except OSError:
+            pass
         song.location = filename
 destlist.writemu3()
+errorlist.writemu3()
+print (destlist.maxsongs)
+print(errorlist.maxsongs)
