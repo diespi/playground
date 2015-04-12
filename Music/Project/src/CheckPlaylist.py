@@ -9,7 +9,7 @@ import os
 import shutil
 import sys, getopt
 
-from cvstest import myplaylist
+import myplaylist
 from cvstest import get_initial
 from cvstest import is_available
 from macpath import dirname

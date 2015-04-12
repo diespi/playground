@@ -90,6 +90,7 @@ class myplaylist(object):
                     # itunes has disk-track titel
                     # amazon has disk-track- title
                     # lets split the line
+                    title=''
                     tracknr =line.split('-')
                     if len(tracknr) ==1:
                         # no dashes in the file 
