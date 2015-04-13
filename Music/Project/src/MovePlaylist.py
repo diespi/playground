@@ -88,5 +88,5 @@ for song in newlist.songlist:
         song.location = filename
 destlist.writemu3()
 errorlist.writemu3()
-print (destlist.maxsongs)
-print(errorlist.maxsongs)
+print (destlist.maxsongs," Songs have been moved -ckeck playlist", destlist.name)
+print(errorlist.maxsongs," Songs could not move because they are already in the destination path -ckeck playlist", errorlist.name)

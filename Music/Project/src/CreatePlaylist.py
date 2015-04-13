@@ -52,6 +52,7 @@ os.chdir(source_path)
 newlist = myplaylist(playlist)
 newlist.readmu3(source_path)
 newlist.writemu3()
+print (newlist.maxsongs," Songs have been added to playlist", newlist.name)
 #listname = newlist.name + '.m3u'
 #fname = os.path.join(basedir,listname)
 #if fname != source_path:

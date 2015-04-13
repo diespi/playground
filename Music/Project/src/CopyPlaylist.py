@@ -79,3 +79,4 @@ for song in newlist.songlist:
         copy(song.location,filename)
         song.location = filename
 destlist.writemu3()
+print (destlist.maxsongs," Songs have been copied -ckeck playlist", destlist.name)
