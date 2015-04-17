@@ -248,12 +248,12 @@ def songs_match(song1,song2):
             #if fuzz.token_set_ratio(song1.album,song2.album) >90:
             if song1.album == song2.album:
                 if song2.location != '':
-                    if song2.rating != Fourstar:
+                    #if song2.rating != Fourstar:
                         #print(song1.title, song1.artist,song1.album)
                         return(6)
-                    else:
+                    #else:
                         #print(song2.title,song2.artist,'rating')
-                        return (5)
+                        #return (5)
                 else:
                     return(4)
             else:
