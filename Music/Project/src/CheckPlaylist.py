@@ -9,7 +9,7 @@ import os
 import shutil
 import sys, getopt
 
-import myplaylist
+from cvstest import myplaylist
 from cvstest import get_initial
 from cvstest import is_available
 from macpath import dirname
@@ -52,9 +52,9 @@ for o, a in myoptions:
                 print (playlist ,"exists and will be overwritten")
 
 
-
 if playlist == '':
-    playlist=os.path.basename(source_path) +'.m3u8'
+    playlist=os.path.basename(source_path.rstrip('/')) +'.m3u8'
+
 if dest_path == '':
     dest_path = source_path 
 
@@ -66,9 +66,10 @@ os.chdir(source_path)
 oldlist.checkmu3(source_path)
 for song in oldlist.songlist:
     initial = get_initial(song.artist)
+    #print(song.title)
     filename = str(song.track) +" - " + song.title.replace('/',' ') +".mp3"
     file_path = os.path.join(song.album,filename)
-        
+    #print(file_path) 
     file = is_available(dest_path,song.artist,file_path)
     if file != '':
         duplist.add(song)
@@ -77,8 +78,14 @@ for song in oldlist.songlist:
     else:
         newlist.add(song)
         file_path = os.path.join(dest_path,initial,song.artist,song.album)
-        filename = os.path.join(file_path,filename) 
-        #print("new",filename.encode('utf-8') ) 
-os.chdir(source_path)
-newlist.writemu3()
-duplist.writemu3()
+        #print(song.title)
+        filename = os.path.join(file_path,filename)
+        print("new",filename.encode('utf-8') ) 
+
+
+if newlist.maxsongs >0:
+    newlist.writem3u8()
+    print (newlist.maxsongs," Songs are not found at the destination path have been added to playlist", newlist.name)
+if duplist.maxsongs >0:
+    duplist.writem3u8()
+    print (duplist.maxsongs," Songs already at the destination path have been added to playlist", duplist.name)

@@ -15,8 +15,8 @@ from cvstest import mkdir_recursive
 
 #import readline, 
 playlist = ''
-source_path = '/Users/dieter/Music/NewMusic.m3u8'
-dest_path ='/Users/dieter/Music-new'
+source_path = ''
+dest_path =''
 try:
     #print (sys.argv)
     myoptions, myargs = getopt.getopt(sys.argv[1:],"p:s:d:a:")
@@ -54,15 +54,18 @@ for o, a in myoptions:
 #else:
 #    print("Usage: %s -s -d" % sys.argv[0],a )
 #    sys.exit(2)
-playlist = os.path.basename(source_path)
-path=os.path.dirname(source_path)
+path=source_path
+if playlist =='':
+    playlist = os.path.basename(source_path)
+    path=os.path.dirname(source_path)
+
 newlist = myplaylist(playlist)
 destlist = myplaylist('new')
 errorlist = myplaylist('notremoved')
 
 print (path)
 os.chdir(path)
-newlist.checkmu3(source_path)
+newlist.checkmu3(playlist)
 for song in newlist.songlist:
     song.title=song.title.replace('/',' ')
     initial = get_initial(song.artist)

@@ -39,19 +39,20 @@ for o, a in myoptions:
             print (get_initial(artist))
         elif o == '-p':
             playlist = a 
-            print(playlist)
+            #print(playlist)
             if os.path.isdir(playlist):
                 print (playlist ,"exists and will be overwritten")
     
 if not os.path.isdir(source_path):
-    print("Usage: %s -s -d" % sys.argv[0],a )
+    print("Usage: %s -s -p" % sys.argv[0] )
     sys.exit(2)
 if playlist == '':
-    playlist=os.path.basename(source_path) +'.m3u8'
+    playlist=os.path.basename(source_path.rstrip('/')) +'.m3u8'
 os.chdir(source_path)
+#print(source_path)
 newlist = myplaylist(playlist)
-newlist.readmu3(source_path)
-newlist.writemu3()
+newlist.readFilesTom3u(source_path.rstrip('/'))
+newlist.writem3u8()
 print (newlist.maxsongs," Songs have been added to playlist", newlist.name)
 #listname = newlist.name + '.m3u'
 #fname = os.path.join(basedir,listname)

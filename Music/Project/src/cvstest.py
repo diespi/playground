@@ -47,7 +47,7 @@ class myplaylist(object):
         for i in self.songlist:
             print (i.artist,"-",i.title)
     
-    def writemu3 (self):
+    def writem3u8 (self):
         # create a playlist file sorted by title
         listname = self.name
         fname = path.join(os.getcwd(),listname)
@@ -63,75 +63,37 @@ class myplaylist(object):
             mu3file.write("%s\n" % element.location)
         mu3file.close() 
     
-    def readmu3 (self,mypath):
+    def readFilesTom3u (self,mypath):
         # walk through a given directory and find all the mp3 files.
         # append files to a given playlist
         # files and directories should have a pre defines structure
         # like amazon or itunes are organizing their folders
-        
+        print(mypath)
         file_paths = [] 
         for dirpath, dirnames, files in os.walk(mypath):
+            #print(files)
             for filename in files:
+                #print(filename, "Dir",dirpath)
                 filepath = os.path.join(dirpath,filename)
+                #print(filepath)
                 file_paths.append(filepath) 
         
         for item in file_paths:
             line = os.path.basename(item)
+            #print(line)
             # for now force into reading mp3 tags
-            readmode=2
             # only if its an mp3 file
             if '.mp3' in line:
-                if readmode == 1:
-                    # we assume no id tags need to get information from the file
-                    # format is rootpath/artist/album 
-                    #print(line)
-                    # line is the song title plus track number
-                    # track number is ususally seperated by '-' but title can contain '-' as well
-                    # itunes has disk-track titel
-                    # amazon has disk-track- title
-                    # lets split the line
-                    title=''
-                    tracknr =line.split('-')
-                    if len(tracknr) ==1:
-                        # no dashes in the file 
-                        # a) no track number
-                        # b) track is seperated by space
-                        words=tracknr.split(' ')
-                        track=int(words[0])
-                        for j in range (len(words)-1):
-                            title=title+'-'+words[j+1]
-                        title = title.strip ('.mp3')
-                    if len(tracknr) ==2:
-                        track = tracknr[0].strip()
-                        line = os.path.dirname(item)
-                        albumpath = os.path.split(line)
-                        album = albumpath[len(albumpath)-1]
-                        albumpath = os.path.split(albumpath[0])
-                    #support 3 formats
-                    # track - title -> len == 2
-                    # disk-track - title
-                    # track - artist - title
-                        disknr = 0
-                        artist = albumpath[len(albumpath)-1]
-                        #title = tracknr[len(tracknr)-1].strip('.mp3')
-                        title=''
-                        for j in range (len(tracknr)-1):
-                            title=title+'-'+tracknr[j+1]
-                        title = title.strip ('.mp3')
-                    if len(tracknr) ==3:
-                        #todo find algorythem
-                        for j in range (len(tracknr)-1):
-                            title=title+'-'+tracknr[j+1]
-                        title = title.strip ('.mp3')
-                else:
-                    # track is not formatted properly or has extra '-'
+                # track is not formatted properly or has extra '-'
                     # try to read the id-tag from the file
-                    tag = stagger.read_tag(item)
-                    track = str.format("%02d" % tag.track)
-                    artist = tag.artist
-                    title = tag.title.replace('/',' ')
-                    disknr = tag.disc
-                    album = tag.album
+                    #print(item)
+                tag = stagger.read_tag(item)
+                track = str.format("%02d" % tag.track)
+                artist = tag.artist
+                title = tag.title.replace('/',' ')
+                #print(title,tag.title)
+                disknr = tag.disc
+                album = tag.album
                     #print(artist,album,track,title)
                     #if tracknr[1].isdigit():
                         #   track = tracknr[1].strip()
@@ -151,44 +113,92 @@ class myplaylist(object):
                 rootpath=os.path.dirname(item)
                 myrelpath=os.path.basename(item)
                 while rootpath != mypath:
+                    #print(rootpath, "mypath",mypath)
                     myrelpath=os.path.join(os.path.basename(rootpath),myrelpath)
                     rootpath=os.path.dirname(rootpath)
                 newsong.location = myrelpath
-                
+                print(myrelpath)
                 # todo: check for duplicates
-                self.songlist.append(newsong)
+                self.add(newsong)
+                #self.maxsongs+=1
         #return (self.songlist)
     def checkmu3 (self,mypath):
+        # open a playlist file and append the songs to playlist passed in
+        # if the playlist is local the the file path should point to a physcal file 
+        # so we can open that file and read the tags.
+        # otherwise we can read the metadata from the playlist and create a normalized version
         listname = self.name
+        #print(listname)
         mu3file=open(listname,'r',encoding='utf-8')
-        for line in mu3file:
-            if '.mp3' in line:
+        for fullline in mu3file:
+            if '.mp3' in fullline:
                 #check if file exits
                 #read the tags
                 #append to playlist
-                fpath=line.rstrip('\n')
+                fpath=fullline.rstrip('\n')
                 #fpath=path.join(os.getcwd(),line)
                 if os.path.exists(fpath):
                     tag = stagger.read_tag(fpath)
                     track = str.format("%02d" % tag.track)
                     artist = tag.artist
                     title = tag.title.replace('/',' ')
+                    #print(title)
                     disknr = tag.disc
                     album = tag.album
                     #print(artist,album,track,title)
-                    newsong=songt('')
-                    newsong.title = title
-                    newsong.artist = artist
-                    newsong.album = album
-                    newsong.track = track
-                    newsong.disk = disknr
-                    newsong.location = fpath
-                    self.songlist.append(newsong)
 
                 else:
-                    print(fpath, "is missing")
+                    # we assume no id tags need to get information from the file
+                    # format is rootpath/artist/album 
+                    #print(line)
+                    # line is the song title plus track number
+                    # track number is ususally seperated by '-' but title can contain '-' as well
+                    # itunes has disk-track titel
+                    # amazon has disk-track- title
+                    # lets split the line
+                    tracktitle = os.path.basename(fullline)
+                    title=''
+                    tracknr =tracktitle.split('-')
+                    if len(tracknr) ==1:
+                        # no dashes in the file 
+                        # a) no track number
+                        # b) track is seperated by space
+                        words=tracknr.split(' ')
+                        track=int(words[0])
+                        for j in range (len(words)-1):
+                            title=title+'-'+words[j+1]
+                        
+                    if len(tracknr) ==2:
+                        track = tracknr[0].strip()
+                        line = os.path.dirname(fullline)
+                        albumpath = os.path.split(line)
+                        album = albumpath[len(albumpath)-1]
+                        albumpath = os.path.split(albumpath[0])
+                    #support 3 formats
+                    # track - title -> len == 2
+                    # disk-track - title
+                    # track - artist - title
+                        disknr = 0
+                        artist = albumpath[len(albumpath)-1]
+                        #title = tracknr[len(tracknr)-1].strip('.mp3')
+                        for j in range (len(tracknr)-1):
+                            title=title+'-'+tracknr[j+1]
+                    if len(tracknr) ==3:
+                        #todo find algorythem
+                        for j in range (len(tracknr)-1):
+                            title=title+'-'+tracknr[j+1]
+                        
+                    title = title.strip ('.mp3')
+                newsong=songt('')
+                newsong.title = title
+                #print(newsong.title)
+                newsong.artist = artist
+                newsong.album = album
+                newsong.track = track
+                newsong.disk = disknr
+                newsong.location = fpath
+                self.add(newsong)
 
-                    
                 
 class songt(object):
     # a song object holds all the meta data of a song
@@ -302,6 +312,7 @@ def is_available (path,artist,file):
     file2 =  os.path.join(path,initial1,artist,file)
     initial2 = artist [0]
     file3 = os.path.join(path,initial2,artist,file)
+    #print(file1,file2,file3)
     if os.path.isfile(file1):
         return (file1)
     if os.path.isfile(file2):
