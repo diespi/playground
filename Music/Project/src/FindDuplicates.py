@@ -56,7 +56,7 @@ if playlist == '':
     playlist=os.path.basename(source_path.rstrip('/')) +'.m3u8'
 os.chdir(source_path)
 oldlist = myplaylist(playlist)
-newlist = myplaylist('new.m3u8')
+partduplist = myplaylist('sametitle.m3u8')
 duplist = myplaylist('duplicate.m3u8')
 oldlist.checkmu3(source_path)
 song1=''
@@ -65,13 +65,25 @@ for song in oldlist.songlist:
     if song1:
         match = songs_match(song1,song)
         if match == 6:
+            # full match
             duplist.add(song1)
             duplist.add(song)
-            print(match,song1.location,song.location)
+            #print(match,song1.location,song.location)
         if match == 3:
+            #title + artist match
+            partduplist.add(song1)
+            partduplist.add(song)
+            #print(match,song1.location,song.location)
+        if match == 2:
+            #only title match
             print(match,song1.location,song.location)
     song1 =song
+
 duplist.writem3u8()
+partduplist.writem3u8()
 if duplist.maxsongs >0:
     duplist.writem3u8()
     print (duplist.maxsongs,"Duplcate  Songs have been added to playlist", duplist.name)
+if partduplist.maxsongs >0:
+    partduplist.writem3u8()
+    print (partduplist.maxsongs,"Duplcate  Songs have been added to playlist", partduplist.name)
