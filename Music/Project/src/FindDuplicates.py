@@ -68,6 +68,8 @@ for song in oldlist.songlist:
             duplist.add(song1)
             duplist.add(song)
             print(match,song1.location,song.location)
+        if match == 3:
+            print(match,song1.location,song.location)
     song1 =song
 duplist.writem3u8()
 if duplist.maxsongs >0:
