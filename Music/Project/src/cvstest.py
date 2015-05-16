@@ -68,7 +68,7 @@ class myplaylist(object):
         # append files to a given playlist
         # files and directories should have a pre defines structure
         # like amazon or itunes are organizing their folders
-        print(mypath)
+        #print(mypath)
         file_paths = [] 
         for dirpath, dirnames, files in os.walk(mypath):
             #print(files)
@@ -87,13 +87,18 @@ class myplaylist(object):
                 # track is not formatted properly or has extra '-'
                     # try to read the id-tag from the file
                     #print(item)
-                tag = stagger.read_tag(item)
-                track = str.format("%02d" % tag.track)
-                artist = tag.artist
-                title = tag.title.replace('/',' ')
-                #print(title,tag.title)
-                disknr = tag.disc
-                album = tag.album
+                try:
+                    #print (item.encode("utf-8"))
+                    tag = stagger.read_tag(item)
+                    track = str.format("%02d" % tag.track)
+                    artist = tag.artist
+                    title = tag.title.replace('/',' ')
+                    #print(title,tag.title)
+                    disknr = tag.disc
+                    album = tag.album
+                except Error("ID3v2 tag not found"):
+                    print("bad tag",line)
+                    continue
                     #print(artist,album,track,title)
                     #if tracknr[1].isdigit():
                         #   track = tracknr[1].strip()
@@ -117,7 +122,7 @@ class myplaylist(object):
                     myrelpath=os.path.join(os.path.basename(rootpath),myrelpath)
                     rootpath=os.path.dirname(rootpath)
                 newsong.location = myrelpath
-                print(myrelpath)
+                #print(myrelpath.encode("utf-8")
                 # todo: check for duplicates
                 self.add(newsong)
                 #self.maxsongs+=1
