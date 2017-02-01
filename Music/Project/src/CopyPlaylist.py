@@ -78,5 +78,5 @@ for song in newlist.songlist:
         mkdir_recursive(file_path)
         copy(song.location,filename)
         song.location = filename
-destlist.writemu3()
+destlist.writem3u8()
 print (destlist.maxsongs," Songs have been copied -ckeck playlist", destlist.name)
