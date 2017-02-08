@@ -7,7 +7,7 @@ import errno
 from stagger.id3 import  *
 from _operator import itemgetter
 import audiotools
-
+import re
 #from fuzzywuzzy import fuzz
 broken =[]
 import configparser
@@ -24,7 +24,7 @@ Fivestar = rconf['Fivestar']
 Notrated = rconf['Notrated']
 delimiter = config['file format']['delimiter']
 rowlen = int (config['file format']['default rowlen'])
-
+verbose = 0
 #-------------------------------------------------------------------------------------------------    
 class myplaylist(object):
     
@@ -90,15 +90,23 @@ class myplaylist(object):
                     # try to read the id-tag from the file
                     #print(item)
                 try:
-                    #print (item.encode("utf-8"))
+                    if verbose == 1:
+                        print (item.encode("utf-8"))
                     tag = stagger.read_tag(item)
-                    track = str.format("%02d" % tag.track)
-                    artist = tag.artist
-                    title = tag.title.replace('/',' ')
+                    for key in list(tag.keys()):
+                        if key.endswith(" "): # iTunes
+                            del tag[key]
+                        if tag.version == 4 and key == "XSOP": # MusicBrainz
+                            del tag[key]
+
+                    track  = str.format("%02d" % tag.track)
+                    artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.artist).title()
+                    title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.title).title()
+                    album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.album).title()
                     #print(title,tag.title)
                     disknr = tag.disc
-                    album = tag.album
-                except Error("ID3v2 tag not found"):
+                # except Error("ID3v2 tag not found"):
+                except stagger.Error as e:
                     print("bad tag",line)
                     continue
                     #print(artist,album,track,title)
@@ -147,11 +155,12 @@ class myplaylist(object):
                 if os.path.exists(fpath):
                     tag = stagger.read_tag(fpath)
                     track = str.format("%02d" % tag.track)
-                    artist = tag.artist
-                    title = tag.title.replace('/',' ')
-                    #print(title)
+                    artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.artist).title()
+                    title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.title).title()
+                    album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.album).title()
+                    #if artist != tag.artist:
+                        #print(artist, " != ", tag.artist)
                     disknr = tag.disc
-                    album = tag.album
                     #print(artist,album,track,title)
 
                 else:

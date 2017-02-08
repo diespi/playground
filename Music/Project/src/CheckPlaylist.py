@@ -8,7 +8,7 @@ import glob
 import os
 import shutil
 import sys, getopt
-
+import re
 from cvstest import myplaylist
 from cvstest import get_initial
 from cvstest import is_available
@@ -65,20 +65,26 @@ duplist = myplaylist('duplicate.m3u8')
 os.chdir(source_path)
 oldlist.checkmu3(source_path)
 for song in oldlist.songlist:
+    song.artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '',song.artist).title()
+    song.album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '',song.album).title()
+    song.title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '',song.title).title()
     initial = get_initial(song.artist)
-    filename = str(song.track) +" - " + song.title.replace('/',' ') +".mp3"
+    filename = str(song.track) +" - " + song.title +".mp3"
     file_path = os.path.join(song.album,filename)
         
     file = is_available(dest_path,song.artist,file_path)
+    #print(file_path)
+    song.location = os.path.join(dest_path,initial,song.artist,song.album,filename)
     if file != '':
         duplist.add(song)
+        #print (file, "aleady exists")
         continue
-            #print (file, "aleady exists")
     else:
         newlist.add(song)
         file_path = os.path.join(dest_path,initial,song.artist,song.album)
         filename = os.path.join(file_path,filename) 
         #print("new",filename.encode('utf-8') ) 
-os.chdir(source_path)
+os.chdir(dest_path)
+print("creating ",dest_path,"/new.m3u8")
 newlist.writem3u8()
 duplist.writem3u8()

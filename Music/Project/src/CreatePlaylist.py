@@ -1,3 +1,4 @@
+# check all the file in the path pointed to with the -s option and create a playlist file named with -p
 import errno
 import glob
 import os.path
@@ -52,9 +53,10 @@ os.chdir(source_path)
 #print(source_path)
 newlist = myplaylist(playlist)
 newlist.readFilesTom3u(source_path.rstrip('/'))
+if dest_path != '':
+    path = dest_path
+    os.chdir(dest_path)
+else:
+    path = source_path
 newlist.writem3u8()
-print (newlist.maxsongs," Songs have been added to playlist", newlist.name)
-#listname = newlist.name + '.m3u'
-#fname = os.path.join(basedir,listname)
-#if fname != source_path:
-#    shutil.move(fname,source_path)
+print (newlist.maxsongs," Songs have been added to playlist", path,"/",newlist.name)

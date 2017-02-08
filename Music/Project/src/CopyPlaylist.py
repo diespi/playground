@@ -74,7 +74,7 @@ for song in newlist.songlist:
         destlist.add(song)
         file_path = os.path.join(dest_path,initial,song.artist,song.album)
         filename = os.path.join(file_path,filename) 
-        print("new",filename) 
+        #print("new",filename) 
         mkdir_recursive(file_path)
         copy(song.location,filename)
         song.location = filename
