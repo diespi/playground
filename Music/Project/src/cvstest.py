@@ -43,6 +43,8 @@ class myplaylist(object):
     def add (self,song):
         self.songlist.append(song)
         self.maxsongs+=1
+        if (self.maxsongs % 1000) == 0:
+           print ('.',end="")
         
     def listsongs (self):
         # print a breif list of songs in the playlist
@@ -90,15 +92,19 @@ class myplaylist(object):
                     # try to read the id-tag from the file
                     #print(item)
                 try:
-                    if verbose == 1:
-                        print (item.encode("utf-8"))
+                    if verbose == 0:
+                        print (item)
                     tag = stagger.read_tag(item)
                     for key in list(tag.keys()):
+                        if key not in ('TMED','TLEN','USLT','TBPM','TIT1','TYER','TRCK', 'TALB','TPE1','TCON', 'APIC', 'COMM', 'TIT2'):
+                            print('key:',key,'tag[key]:',tag[key])
+                        if key in ('TENC','TCOP','TPUB','TXXX','TSSE','WXXX','PRIV'):
+                            del tag[key]
                         if key.endswith(" "): # iTunes
                             del tag[key]
                         if tag.version == 4 and key == "XSOP": # MusicBrainz
                             del tag[key]
-
+                    tag.write()
                     track  = str.format("%02d" % tag.track)
                     artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.artist).title()
                     title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.title).title()
@@ -153,6 +159,7 @@ class myplaylist(object):
                 fpath=fullline.rstrip('\n')
                 #fpath=path.join(os.getcwd(),line)
                 if os.path.exists(fpath):
+                    print (fpath)
                     tag = stagger.read_tag(fpath)
                     track = str.format("%02d" % tag.track)
                     artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.artist).title()
@@ -316,6 +323,8 @@ def create_rel_path(filename):
 def get_initial (artist):
         words = artist.split()
         #print (words)
+        if words == '':
+           words = "Unknown"
         if any(words[0].upper() == x for x in ('THE','A','DER','DIE')):
                 initial = words[1][0].upper()
         else:

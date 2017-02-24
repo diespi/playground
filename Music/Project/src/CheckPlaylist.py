@@ -68,13 +68,18 @@ for song in oldlist.songlist:
     song.artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '',song.artist).title()
     song.album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '',song.album).title()
     song.title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '',song.title).title()
+    if song.artist == "":
+       print (song.location)
+       song.artist = 'Unknown'
+
     initial = get_initial(song.artist)
+       
     filename = str(song.track) +" - " + song.title +".mp3"
     file_path = os.path.join(song.album,filename)
         
     file = is_available(dest_path,song.artist,file_path)
     #print(file_path)
-    song.location = os.path.join(dest_path,initial,song.artist,song.album,filename)
+    #song.location = os.path.join(dest_path,initial,song.artist,song.album,filename)
     if file != '':
         duplist.add(song)
         #print (file, "aleady exists")

@@ -3,7 +3,7 @@ import glob
 import os
 import shutil
 import sys, getopt
-
+import glob
 
 from cvstest import myplaylist
 from cvstest import copy
@@ -12,11 +12,34 @@ from cvstest import is_available
 from macpath import dirname
 from pathlib import Path
 from cvstest import mkdir_recursive
-
+from os.path import join
 #import readline, 
 playlist = ''
 source_path = ''
 dest_path =''
+def listdir_nohidden(path):
+    return glob.glob(os.path.join(path, '*'))
+def remEmptyDir(mypath):
+    for root, dirs, files in os.walk(mypath,topdown=False):
+        for name in dirs:
+         fname = join(root,name)
+         if not os.path.isdir(fname):
+             print('rmEmptyDir',fname)
+             continue
+         if not os.listdir(fname): #to check wither the dir is empty
+             if os.path.isfile (fname):
+                 print ('removing ',fname)
+                 os.removedirs(fname)
+         else:
+            print('rmEmptyDir not empty',fname)
+            if not listdir_nohidden(fname):
+                hidden_file = os.listdir(fname)
+                for name in hidden_file:
+                    hidden_fname = join(fname,name)
+                    print (hidden_fname)
+                    os.remove (hidden_fname)
+                os.removedirs(fname)
+                    
 try:
     #print (sys.argv)
     myoptions, myargs = getopt.getopt(sys.argv[1:],"p:s:d:a:")
@@ -58,10 +81,11 @@ path=source_path
 if playlist =='':
     playlist = os.path.basename(source_path)
     path=os.path.dirname(source_path)
-
+if dest_path == '':
+    dest_path = path
 newlist = myplaylist(playlist)
-destlist = myplaylist('new')
-errorlist = myplaylist('notremoved')
+destlist = myplaylist('newmoved.m3u8')
+errorlist = myplaylist('notremoved.m3u8')
 
 print (path)
 os.chdir(path)
@@ -75,9 +99,12 @@ for song in newlist.songlist:
     file = is_available(dest_path,song.artist,file_path)
     if file != '':
         errorlist.add(song)
+        print (file, "aleady exists")
         continue
-            #print (file, "aleady exists")
     else:
+        if not os.path.exists (song.location):
+            print ('skipping',song.location)
+            continue
         destlist.add(song)
         file_path = os.path.join(dest_path,initial,song.artist,song.album)
         filename = os.path.join(file_path,filename) 
@@ -85,11 +112,15 @@ for song in newlist.songlist:
         mkdir_recursive(file_path)
         copy(song.location,filename)
         try:
+            print('removing', song.location)
             os.remove(song.location)
         except OSError:
             pass
         song.location = filename
-destlist.writemu3()
-errorlist.writemu3()
+#os.removedirs(path)
+#system (find source_path -name ".DS_Store" -exec rm {} \;)
+#remEmptyDir(source_path)
+destlist.writem3u8()
+errorlist.writem3u8()
 print (destlist.maxsongs," Songs have been moved -ckeck playlist", destlist.name)
 print(errorlist.maxsongs," Songs could not move because they are already in the destination path -ckeck playlist", errorlist.name)

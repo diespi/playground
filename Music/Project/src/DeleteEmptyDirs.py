@@ -3,7 +3,7 @@ import glob
 import os
 import shutil
 import sys, getopt
-
+import glob
 
 from cvstest import myplaylist
 from cvstest import copy
@@ -12,11 +12,39 @@ from cvstest import is_available
 from macpath import dirname
 from pathlib import Path
 from cvstest import mkdir_recursive
-
+from os.path import join
 #import readline, 
 playlist = ''
-source_path = '/Users/dieter/Music/NewMusic.m3u8'
-dest_path ='/Users/dieter/Music-new'
+source_path = ''
+dest_path =''
+def listdir_nohidden(path):
+    return glob.glob(os.path.join(path, '*'))
+def remEmptyDir(mypath):
+    for root, dirs, files in os.walk(mypath,topdown=False):
+        for name in dirs:
+         #print ('dir',name)
+         fname = join(root,name)
+         #print('fname',fname)
+         if not os.path.isdir(fname):
+             print('rmEmptyDir',fname)
+             continue
+         if not os.listdir(fname): #to check wither the dir is empty
+             #print ('list', item)
+             print ('removing ',fname)
+             os.removedirs(fname)
+         else:
+            #print('rmEmptyDir not empty',fname)
+            for item in os.listdir(fname):
+                if item.startswith('.'):
+                    hidden_fname = join(fname,item)
+                    print (hidden_fname)
+                    os.remove (hidden_fname)
+                else:
+                    break
+            if not os.listdir(fname):
+                print('Removing dir ',fname)
+                #os.removedirs(fname)
+                    
 try:
     #print (sys.argv)
     myoptions, myargs = getopt.getopt(sys.argv[1:],"p:s:d:a:")
@@ -54,35 +82,10 @@ for o, a in myoptions:
 #else:
 #    print("Usage: %s -s -d" % sys.argv[0],a )
 #    sys.exit(2)
+path=source_path
 
-newlist = myplaylist(playlist)
-destlist = myplaylist('new.m3u8')
-duplist = myplaylist('duplicate.m3u8')
-
-os.chdir(source_path)
-newlist.checkmu3(source_path)
-for song in newlist.songlist:
-    song.title=song.title.replace('/',' ')
-    if song.artist == '':
-        song.artist = 'unknown'
-    initial = get_initial(song.artist)
-    filename = str(song.track) +" - " + song.title +".mp3"
-    file_path = os.path.join(song.album,filename.strip('/'))
+print (path)
+os.chdir(path)
         
-    file = is_available(dest_path,song.artist,file_path)
-    if file != '':
-        duplist.add(song)
-        continue
-            #print (file, "aleady exists")
-    else:
-        destlist.add(song)
-        file_path = os.path.join(dest_path,initial,song.artist,song.album)
-        filename = os.path.join(file_path,filename) 
-        #print("new",filename) 
-        mkdir_recursive(file_path)
-        copy(song.location,filename)
-        song.location = filename
-destlist.writem3u8()
-duplist.writem3u8()
-print (destlist.maxsongs," Songs have been copied -ckeck playlist", destlist.name)
-print (duplist.maxsongs," Songs have not been copied -ckeck playlist", duplist.name)
+#os.removedirs(path)
+remEmptyDir(source_path)
