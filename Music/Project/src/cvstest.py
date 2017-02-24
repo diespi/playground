@@ -92,14 +92,15 @@ class myplaylist(object):
                     # try to read the id-tag from the file
                     #print(item)
                 try:
-                    if verbose == 0:
+                    if verbose == 1:
                         print (item)
                     tag = stagger.read_tag(item)
                     for key in list(tag.keys()):
-                        if key not in ('TMED','TLEN','USLT','TBPM','TIT1','TYER','TRCK', 'TALB','TPE1','TCON', 'APIC', 'COMM', 'TIT2'):
-                            print('key:',key,'tag[key]:',tag[key])
-                        if key in ('TENC','TCOP','TPUB','TXXX','TSSE','WXXX','PRIV'):
+                        if key in ('POPM','TIT3','UFID','UFI','WOAF','WOAR','GEOB','PCNT','NCON','WCOM','MCDI','TSIZ','TENC','TCOP','TPUB','TXXX','TSSE','WXXX','PRIV'):
                             del tag[key]
+                        else:
+                            if key not in ('TDRL','RGAD','RVAD','TSO2','TOPE','TPOE','TDRC','PIC','TP2','TSOE','TYE','TPA','TT2','TP1','TAL','TRK','TCM','TCO','TCP','TEN','COM','TFLT','TPOS','TCMP','TSOT','TDLR','TSOA','TSOP','TPE2','TLAN','TDAT','SYLT','TMED','TCOM','TLEN','USLT','TBPM','TIT1','TYER','TRCK', 'TALB','TPE1','TCON', 'APIC', 'COMM', 'TIT2'):
+                                print('key:',key,'tag[key]:',tag[key])
                         if key.endswith(" "): # iTunes
                             del tag[key]
                         if tag.version == 4 and key == "XSOP": # MusicBrainz
