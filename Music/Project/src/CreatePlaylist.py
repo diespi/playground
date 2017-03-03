@@ -51,12 +51,15 @@ if playlist == '':
     playlist=os.path.basename(source_path.rstrip('/')) +'.m3u8'
 os.chdir(source_path)
 #print(source_path)
+print("Creating new playlist: ",playlist)
 newlist = myplaylist(playlist)
+print("Scanning Folder for mp3 files",source_path)
 newlist.readFilesTom3u(source_path.rstrip('/'))
 if dest_path != '':
     path = dest_path
     os.chdir(dest_path)
 else:
     path = source_path
+print("Copy playlist file to disk")
 newlist.writem3u8()
 print (newlist.maxsongs," Songs have been added to playlist", path,"/",newlist.name)

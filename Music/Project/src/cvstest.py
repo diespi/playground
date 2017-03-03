@@ -96,12 +96,95 @@ class myplaylist(object):
                         print (item)
                     tag = stagger.read_tag(item)
                     for key in list(tag.keys()):
-                        if key in ('WOAS','WORS','TEXT','TOLY','TRSN','USER','TKEY','TOAL','W000','TT22','POPM','TIT3','UFID','UFI','WOAF','WOAR','GEOB','PCNT','NCON','WCOM','MCDI','TSIZ','TENC','TCOP','TPUB','TT22','TXXX','TSSE','WXXX','PRIV'):
+                        if key in ('GEOB',  # General encapsulated object
+                                   'MCDI',  # Music CD identifier
+                                   'NCON',  # MusicMatch data
+                                   'PCNT',  # Play counter
+                                   'POPM',  # Popularimeter
+                                   'PRIV',  # Private frame
+                                   'TCOP',  # Copyright message
+                                   'TDLR',  # invalid
+                                   'TENC',  # Encoded by 
+                                   'TEXT',  # Lyricist/Text writer
+                                   'TIT3',  # Subtitle/Description refinement
+                                   'TKEY',  # Initial key /^([CDEFGAB][b#]?[m]?|o)$/
+                                   'TOAL',  # Original album/movie/show title
+                                   'TOLY',  # Original lyricist(s)/text writer(s)
+                                   'TPUB',  # Publisher
+                                   'TRSN',  # Internet radio station name
+                                   'TSIZ',  # Size 
+                                   'TSSE',  # Software/Hardware and settings used for encoding
+                                   'TT22',  # invalid
+                                   'TOWN',  # File owner
+                                   'TSOE',  # invalid
+                                   'TXXX',  # User defined text information frame
+                                   'UFI',   # Unique file identifier
+                                   'UFID',  # Unique file identifier
+                                   'USER',  # Terms of use
+                                   'W000',  # invalid
+                                   'WCOM',  # Commercial information
+                                   'WOAF',  # Official audio file webpage
+                                   'WOAR',  # Official artist/performer webpage
+                                   'WOAS',  # Official audio source webpage
+                                   'WORS',  # Official Internet radio station homepage
+                                   'WXXX'   # User defined URL link frame
+                                  ):
                             #print('stripping ',key,tag[key])
+                            # deleting keys which are broken or not relevant
                             del tag[key]
                             
                         else:
-                            if key not in ('TIME','TDRL','RGAD','RVAD','TSO2','TOPE','TPOE','TDRC','PIC','TP2','TSOE','TYE','TPA','TT2','TP1','TAL','TRK','TCM','TCO','TCP','TEN','COM','TFLT','TPOS','TCMP','TSOT','TORY','TDLR','TSOA','TSOP','TPE2','TPE3','TLAN','TDAT','SYLT','TMED','TCOM','TLEN','USLT','TBPM','TIT1','TYER','TRCK', 'TALB','TPE1','TCON', 'APIC', 'COMM', 'TIT2'):
+                            if key not in (
+                                           'APIC',   # Attached picture
+                                           'COM',    # Comments
+                                           'COMM',   # Comments
+                                           'PIC',    # Attached picture
+                                           'RGAD',   # Replay Gain Adjustment
+                                           'RVAD',   # Relative volume adjustment Replaced by RVA2 in id3v2.4
+                                           'SYLT',   # Synchronised lyric/text
+                                           'TAL',    # Album/Movie/Show title
+                                           'TALB',   # Album/Movie/Show title
+                                           'TBPM',   # BPM (beats per minute)
+                                           'TCM',    # Composer
+                                           'TCMP',   # iTunes: Part of a compilation
+                                           'TCO',    # Content type
+                                           'TCOM',   # Composer
+                                           'TCON',   # Content type
+                                           'TCP',    # iTunes: Part of a compilation
+                                           'TDAT',   # Date
+                                           'TDRC',   # Recording time
+                                           'TDRL',   # Release time
+                                           'TEN',    # Encoded by
+                                           'TENC',   # Encoded by
+                                           'TFLT',   # File type
+                                           'TIME',   # Time Replaced by TDRC in id3v2.4
+                                           'TIT1',   # Content group description
+                                           'TIT2',   # Title/songname/content description
+                                           'TLAN',   # Language
+                                           'TLEN',   # LENGTH
+                                           'TMED',   # Media type
+                                           'TOPE',   # Original artist(s)/performer(s)
+                                           'TORY',   # Original release year Replaced by TDOR in id3v2.4
+                                           'TP1',    # Lead performer(s)/Soloist(s)
+                                           'TP2',    # Band/orchestra/accompaniment
+                                           'TPA',    # Part of a set
+                                           'TPE1',   # Lead performer(s)/Soloist(s)
+                                           'TPE2',   # Band/orchestra/accompaniment
+                                           'TPE3',   # Conductor/performer refinement
+                                           'TPOE',   # invalid
+                                           'TPOS',   # Part of a set
+                                           'TRCK',   # Track number/Position in set
+                                           'TRK',    # Track number/Position in set
+                                           'TSO2',   # iTunes: Album Artist sort order
+                                           'TSOA',   # Album sort order
+                                           'TSOP',   # Performer sort order
+                                           'TSOT',   # Title sort order
+                                           'TT2',    # Title/songname/content description
+                                           'TYE',    # Year Replaced by TDRC in id3v2.4
+                                           'TYER',   # Year Replaced by TDRC in id3v2.4
+                                           'USLT'    # Unsynchronised lyric/text transcription
+                                          ):
+
                                 print('key:',key,'tag[key]:',tag[key])
                         if key.endswith(" "): # iTunes
                             del tag[key]
