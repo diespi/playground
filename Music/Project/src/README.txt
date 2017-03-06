@@ -22,6 +22,7 @@ CreatePlaylist
 	
 	-s <source path> # where the orignal files are located
 	-p <playlist>
+        -f tags will be filtered and rewritten. Use with caution and create a backup first.
 	
 	if playlist is not specified it defaults to the folder name of the source path
 	
