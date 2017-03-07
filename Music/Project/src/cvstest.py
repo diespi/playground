@@ -190,6 +190,13 @@ class myplaylist(object):
                             del tag[key]
                         if tag.version == 4 and key == "XSOP": # MusicBrainz
                             del tag[key]
+                    tag.artist = tag.artist.strip()
+                    if tag.artist == '':
+                        tag.artist = 'Unknown'
+                    tag.album = tag.album.strip()
+                    if tag.album == '':
+                        tag.album = 'Unknown'
+                    tag.title = tag.title.strip()
                     tag.write()
                     track  = str.format("%02d" % tag.track)
                     artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.artist).title()
@@ -245,7 +252,7 @@ class myplaylist(object):
                 fpath=fullline.rstrip('\n')
                 #fpath=path.join(os.getcwd(),line)
                 if os.path.exists(fpath):
-                    print (fpath)
+                    #print (fpath)
                     tag = stagger.read_tag(fpath)
                     track = str.format("%02d" % tag.track)
                     artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.artist).title()
