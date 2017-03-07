@@ -25,6 +25,7 @@ Notrated = rconf['Notrated']
 delimiter = config['file format']['delimiter']
 rowlen = int (config['file format']['default rowlen'])
 verbose = 0
+fixit = 0
 #-------------------------------------------------------------------------------------------------    
 class myplaylist(object):
     
@@ -67,12 +68,14 @@ class myplaylist(object):
             mu3file.write("%s\n" % element.location)
         mu3file.close() 
     
-    def readFilesTom3u (self,mypath):
+    def readFilesTom3u (self,mypath,fixit):
         # walk through a given directory and find all the mp3 files.
         # append files to a given playlist
         # files and directories should have a pre defines structure
         # like amazon or itunes are organizing their folders
         #print(mypath)
+        if fixit == 0:
+            print ("skipping tag update")
         file_paths = [] 
         for dirpath, dirnames, files in os.walk(mypath):
             #print(files)
@@ -95,7 +98,8 @@ class myplaylist(object):
                     if verbose == 1:
                         print (item)
                     tag = stagger.read_tag(item)
-                    for key in list(tag.keys()):
+                    if fixit == 1:
+                      for key in list(tag.keys()):
                         if key in ('GEOB',  # General encapsulated object
                                    'MCDI',  # Music CD identifier
                                    'NCON',  # MusicMatch data
@@ -190,14 +194,14 @@ class myplaylist(object):
                             del tag[key]
                         if tag.version == 4 and key == "XSOP": # MusicBrainz
                             del tag[key]
-                    tag.artist = tag.artist.strip()
-                    if tag.artist == '':
-                        tag.artist = 'Unknown'
-                    tag.album = tag.album.strip()
-                    if tag.album == '':
-                        tag.album = 'Unknown'
-                    tag.title = tag.title.strip()
-                    tag.write()
+                      tag.artist = tag.artist.strip()
+                      if tag.artist == '':
+                          tag.artist = 'Unknown'
+                      tag.album = tag.album.strip()
+                      if tag.album == '':
+                          tag.album = 'Unknown'
+                      tag.title = tag.title.strip()
+                      tag.write()
                     track  = str.format("%02d" % tag.track)
                     artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.artist).title()
                     title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.title).title()
@@ -266,7 +270,7 @@ class myplaylist(object):
                 else:
                     # we assume no id tags need to get information from the file
                     # format is rootpath/artist/album 
-                    #print(line)
+                    print(line)
                     # line is the song title plus track number
                     # track number is ususally seperated by '-' but title can contain '-' as well
                     # itunes has disk-track titel

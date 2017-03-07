@@ -64,7 +64,7 @@ newlist.checkmu3(source_path)
 for song in newlist.songlist:
     song.title=song.title.replace('/',' ')
     if song.artist == '':
-        song.artist = 'unknown'
+        song.artist = 'Unknown'
     initial = get_initial(song.artist)
     filename = str(song.track) +" - " + song.title +".mp3"
     file_path = os.path.join(song.album,filename.strip('/'))
