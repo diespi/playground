@@ -235,7 +235,7 @@ class myplaylist(object):
                     myrelpath=os.path.join(os.path.basename(rootpath),myrelpath)
                     rootpath=os.path.dirname(rootpath)
                 newsong.location = myrelpath
-                #print(myrelpath.encode("utf-8")
+                # print(myrelpath.encode("utf-8"))
                 # todo: check for duplicates
                 self.add(newsong)
                 #self.maxsongs+=1
@@ -270,45 +270,46 @@ class myplaylist(object):
                 else:
                     # we assume no id tags need to get information from the file
                     # format is rootpath/artist/album 
-                    print(line)
+                    print(fullline)
+                    continue
                     # line is the song title plus track number
                     # track number is ususally seperated by '-' but title can contain '-' as well
                     # itunes has disk-track titel
                     # amazon has disk-track- title
                     # lets split the line
-                    tracktitle = os.path.basename(fullline)
-                    title=''
-                    tracknr =tracktitle.split('-')
-                    if len(tracknr) ==1:
+                    # tracktitle = os.path.basename(fullline)
+                    # title=''
+                    # tracknr =tracktitle.split('-')
+                    # if len(tracknr) ==1:
                         # no dashes in the file 
                         # a) no track number
                         # b) track is seperated by space
-                        words=tracknr.split(' ')
-                        track=int(words[0])
-                        for j in range (len(words)-1):
-                            title=title+'-'+words[j+1]
+                        # words=tracknr.split(' ')
+                        # track=int(words[0])
+                        # for j in range (len(words)-1):
+                            # title=title+'-'+words[j+1]
                         
-                    if len(tracknr) ==2:
-                        track = tracknr[0].strip()
-                        line = os.path.dirname(fullline)
-                        albumpath = os.path.split(line)
-                        album = albumpath[len(albumpath)-1]
-                        albumpath = os.path.split(albumpath[0])
-                    #support 3 formats
+                    # if len(tracknr) ==2:
+                        # track = tracknr[0].strip()
+                        # line = os.path.dirname(fullline)
+                        # albumpath = os.path.split(line)
+                        # album = albumpath[len(albumpath)-1]
+                        # albumpath = os.path.split(albumpath[0])
+                    # #support 3 formats
                     # track - title -> len == 2
                     # disk-track - title
                     # track - artist - title
-                        disknr = 0
-                        artist = albumpath[len(albumpath)-1]
+                        # disknr = 0
+                        # artist = albumpath[len(albumpath)-1]
                         #title = tracknr[len(tracknr)-1].strip('.mp3')
-                        for j in range (len(tracknr)-1):
-                            title=title+'-'+tracknr[j+1]
-                    if len(tracknr) ==3:
-                        #todo find algorythem
-                        for j in range (len(tracknr)-1):
-                            title=title+'-'+tracknr[j+1]
+                        # for j in range (len(tracknr)-1):
+                            # title=title+'-'+tracknr[j+1]
+                    # if len(tracknr) ==3:
+                        # #todo find algorythem
+                        # for j in range (len(tracknr)-1):
+                            # title=title+'-'+tracknr[j+1]
                         
-                    title = title.strip ('.mp3')
+                    # title = title.strip ('.mp3')
                 newsong=songt('')
                 newsong.title = title
                 #print(newsong.title)
