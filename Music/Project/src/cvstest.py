@@ -195,6 +195,10 @@ class myplaylist(object):
                       tag.artist = tag.artist.strip()
                       tag.album = tag.album.strip()
                       tag.title = tag.title.strip()
+                      if tag.artist == '':
+                          tag.artist = 'Unknown'
+                      if tag.album == '':
+                          tag.album = 'Unknown'
                       tag.write()
                     track  = str.format("%02d" % tag.track)
                     artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.artist).title()
@@ -229,7 +233,7 @@ class myplaylist(object):
                     myrelpath=os.path.join(os.path.basename(rootpath),myrelpath)
                     rootpath=os.path.dirname(rootpath)
                 newsong.location = myrelpath
-                #print(myrelpath.encode("utf-8")
+                # print(myrelpath.encode("utf-8"))
                 # todo: check for duplicates
                 self.add(newsong)
                 #self.maxsongs+=1
@@ -264,7 +268,8 @@ class myplaylist(object):
                 # else:
                     # we assume no id tags need to get information from the file
                     # format is rootpath/artist/album 
-                    #print(fullline)
+                    print(fullline)
+                    continue
                     # line is the song title plus track number
                     # track number is ususally seperated by '-' but title can contain '-' as well
                     # itunes has disk-track titel
