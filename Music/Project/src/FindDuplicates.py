@@ -68,7 +68,7 @@ for song in oldlist.songlist:
             # full match
             duplist.add(song1)
             duplist.add(song)
-            #print(match,song1.location,song.location)
+            print(match,song1.location,song.location)
         if match == 3:
             #title + artist match
             partduplist.add(song1)

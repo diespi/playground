@@ -44,8 +44,6 @@ class myplaylist(object):
     def add (self,song):
         self.songlist.append(song)
         self.maxsongs+=1
-        if (self.maxsongs % 1000) == 0:
-           print ('.',end="")
         
     def listsongs (self):
         # print a breif list of songs in the playlist
@@ -194,6 +192,9 @@ class myplaylist(object):
                             del tag[key]
                         if tag.version == 4 and key == "XSOP": # MusicBrainz
                             del tag[key]
+                      tag.artist = tag.artist.strip()
+                      tag.album = tag.album.strip()
+                      tag.title = tag.title.strip()
                       tag.write()
                     track  = str.format("%02d" % tag.track)
                     artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.artist).title()
@@ -260,48 +261,48 @@ class myplaylist(object):
                     disknr = tag.disc
                     #print(artist,album,track,title)
 
-                else:
+                # else:
                     # we assume no id tags need to get information from the file
                     # format is rootpath/artist/album 
-                    print(line)
+                    #print(fullline)
                     # line is the song title plus track number
                     # track number is ususally seperated by '-' but title can contain '-' as well
                     # itunes has disk-track titel
                     # amazon has disk-track- title
                     # lets split the line
-                    tracktitle = os.path.basename(fullline)
-                    title=''
-                    tracknr =tracktitle.split('-')
-                    if len(tracknr) ==1:
+                    # tracktitle = os.path.basename(fullline)
+                    # title=''
+                    # tracknr =tracktitle.split('-')
+                    # if len(tracknr) ==1:
                         # no dashes in the file 
                         # a) no track number
                         # b) track is seperated by space
-                        words=tracknr.split(' ')
-                        track=int(words[0])
-                        for j in range (len(words)-1):
-                            title=title+'-'+words[j+1]
+                        # words=tracknr.split(' ')
+                        # track=int(words[0])
+                        # for j in range (len(words)-1):
+                            # title=title+'-'+words[j+1]
                         
-                    if len(tracknr) ==2:
-                        track = tracknr[0].strip()
-                        line = os.path.dirname(fullline)
-                        albumpath = os.path.split(line)
-                        album = albumpath[len(albumpath)-1]
-                        albumpath = os.path.split(albumpath[0])
+                    # if len(tracknr) ==2:
+                        # track = tracknr[0].strip()
+                        # line = os.path.dirname(fullline)
+                        # albumpath = os.path.split(line)
+                        # album = albumpath[len(albumpath)-1]
+                        # albumpath = os.path.split(albumpath[0])
                     #support 3 formats
                     # track - title -> len == 2
                     # disk-track - title
                     # track - artist - title
-                        disknr = 0
-                        artist = albumpath[len(albumpath)-1]
+                        # disknr = 0
+                        # artist = albumpath[len(albumpath)-1]
                         #title = tracknr[len(tracknr)-1].strip('.mp3')
-                        for j in range (len(tracknr)-1):
-                            title=title+'-'+tracknr[j+1]
-                    if len(tracknr) ==3:
+                        # for j in range (len(tracknr)-1):
+                            # title=title+'-'+tracknr[j+1]
+                    # if len(tracknr) ==3:
                         #todo find algorythem
-                        for j in range (len(tracknr)-1):
-                            title=title+'-'+tracknr[j+1]
+                        # for j in range (len(tracknr)-1):
+                            # title=title+'-'+tracknr[j+1]
                         
-                    title = title.strip ('.mp3')
+                    # title = title.strip ('.mp3')
                 newsong=songt('')
                 newsong.title = title
                 #print(newsong.title)
@@ -362,7 +363,7 @@ def songs_match(song1,song2):
             if song1.album == song2.album:
                 if song2.location != '':
                     #if song2.rating != Fourstar:
-                        #print(song1.title, song1.artist,song1.album)
+                        print(song2.location)
                         return(6)
                     #else:
                         #print(song2.title,song2.artist,'rating')
