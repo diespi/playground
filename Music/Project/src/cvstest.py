@@ -252,8 +252,9 @@ class myplaylist(object):
                 #read the tags
                 #append to playlist
                 fpath=fullline.rstrip('\n')
-                #fpath=path.join(os.getcwd(),line)
-                if os.path.exists(fpath):
+                fpath=path.join(os.getcwd(),fpath)
+                #print ("path ",fpath)
+                if os.path.isfile(fpath):
                     #print (fpath)
                     tag = stagger.read_tag(fpath)
                     track = str.format("%02d" % tag.track)
@@ -265,10 +266,10 @@ class myplaylist(object):
                     disknr = tag.disc
                     #print(artist,album,track,title)
 
-                # else:
+                else:
                     # we assume no id tags need to get information from the file
                     # format is rootpath/artist/album 
-                    print(fullline)
+                    print("can't open file",fullline)
                     continue
                     # line is the song title plus track number
                     # track number is ususally seperated by '-' but title can contain '-' as well

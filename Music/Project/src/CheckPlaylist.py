@@ -79,8 +79,8 @@ for song in oldlist.songlist:
         
     file = is_available(dest_path,song.artist,file_path)
     #print(file_path)
-    #song.location = os.path.join(dest_path,initial,song.artist,song.album,filename)
     if file != '':
+        song.location = os.path.join(dest_path,initial,song.artist,song.album,filename)
         duplist.add(song)
         #print (file, "aleady exists")
         continue
@@ -90,6 +90,6 @@ for song in oldlist.songlist:
         filename = os.path.join(file_path,filename) 
         #print("new",filename.encode('utf-8') ) 
 os.chdir(dest_path)
-print("creating ",dest_path,"/new.m3u8")
+print("creating ",dest_path,"/new.m3u8","added ",newlist.maxsongs)
 newlist.writem3u8()
 duplist.writem3u8()
