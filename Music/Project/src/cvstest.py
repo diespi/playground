@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: iso-8859-15 -*-
 import codecs, os
 from os import path
 import stagger
@@ -244,7 +245,7 @@ class myplaylist(object):
         # so we can open that file and read the tags.
         # otherwise we can read the metadata from the playlist and create a normalized version
         listname = self.name
-        #print(listname)
+        print(listname)
         mu3file=open(listname,'r',encoding='utf-8')
         for fullline in mu3file:
             if '.mp3' in fullline:
@@ -268,9 +269,45 @@ class myplaylist(object):
 
                 else:
                     # we assume no id tags need to get information from the file
-                    # format is rootpath/artist/album 
-                    print("can't open file",fullline)
-                    continue
+                    # format is rootpath/artist/album
+		    #  there is no fixed layout for playlists. Scanning a playlist can be tricky
+                    #  order artist -title vs. title - artist 
+                    # ---------------
+                    #  Full path
+                    #  #EXTINF:11,Hide Away - Daya
+                    #  /Volumes/My Passport/Music/temp/top rated/Hide Away - Daya.mp3
+                    full_track = os.path.basename(fullline)
+                    album_path = fullline.split('/')
+                    disknr = 1
+                    if len(album_path) == 2:
+                      # ---------------
+                      #  Short path: folder/title - artist/
+                      #  #EXTINF:10,2 Become 1 - Spice Girls
+                      #  top rated/2 Become 1 - Spice Girls.mp3
+                      artist = full_track.split(' - ')[1].split('.')[0].strip()
+                      title = full_track.split(' - ')[0].strip()
+                      album = album_path[len(album_path) - 2].strip()
+                      # print ( artist,'/',album,'/',title)
+                      # print(fullline,full_track,album,title,artist)
+                      track=str.format("%02d" % 1)
+                      # print ( artist,'/',album,'/',track,' - ', title)
+                    elif len(album_path) == 4:
+                      # ---------------
+                      #  Normalized path
+                      #  #EXTINF:85,'No More (I Can'T Stand It) - Maxx
+                      #  M/Maxx/Dance Nrg 94/02 - 'No More (I Can'T Stand It).mp3
+                      title = full_track.split('-')[1].split('.')[0].strip()
+                      if title == "":
+                        title = 'unknown'
+                      track = full_track.split(' - ')[0].strip()
+                      album = album_path[len(album_path) - 2].strip()
+                      artist = album_path[len(album_path) - 3].strip()
+                      # print(fullline,full_track,album,title,artist)
+                      # print ( artist,'/',album,'/',track,' - ', title)
+                    else:
+                       print ('len', len(album_path))
+                       print (fullline)
+                    # print ('initial:',initial,'filename:', filename,'path:',file_path)
                     # line is the song title plus track number
                     # track number is ususally seperated by '-' but title can contain '-' as well
                     # itunes has disk-track titel
@@ -309,6 +346,11 @@ class myplaylist(object):
                             # title=title+'-'+tracknr[j+1]
                         
                     # title = title.strip ('.mp3')
+                filename = str(track) +" - " + title +".mp3"
+                if artist == '':
+                    artist = 'Unknown'
+                initial = get_initial(artist)
+                file_path = os.path.join(initial,artist,album,filename) 
                 newsong=songt('')
                 newsong.title = title
                 #print(newsong.title)
@@ -316,7 +358,8 @@ class myplaylist(object):
                 newsong.album = album
                 newsong.track = track
                 newsong.disk = disknr
-                newsong.location = fpath
+                # print (file_path)
+                newsong.location = file_path
                 self.add(newsong)
 
                 
