@@ -60,59 +60,65 @@ if dest_path == '':
 
 srclist    = myplaylist(playlist1)
 destlist   = myplaylist(playlist2)
-matchall   = myplaylist('matchall.m3u8')
-matchartist = myplaylist('matchartist.m3u8')
-matchtitle = myplaylist('matchtitle.m3u8')
+full_list   = myplaylist('full_list.m3u8')
+no_match_list = myplaylist('no_match_list.m3u8')
+partial_list = myplaylist('partial_list.m3u8')
 
 os.chdir(source_path)
 srclist.checkmu3(source_path)
 print (srclist.maxsongs," Songs have been added to playlist", source_path,"/",srclist.name)
-
+srclist.writem3u8('')
 os.chdir(dest_path)
 destlist.checkmu3(dest_path)
 print (destlist.maxsongs," Songs have been added to playlist", dest_path,"/",destlist.name)
+destlist.writem3u8('')
+import string
+def equal(a, b):
+    x = re.sub('[^a-zA-Z0-9öäüÖÄÜß\n\(\)\[\]\{\}\,\&\$\!\+]', '', a).title()
+    y = re.sub('[^a-zA-Z0-9öäüÖÄÜß\n\(\)\[\]\{\}\,\&\$\!\+]', '', b).title()
+    try:
+        return x.lower() == y.lower()
+    except AttributeError:
+        return x == y
 
 for song in srclist.songlist:
-    song.artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '',song.artist).title()
-    song.album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '',song.album).title()
-    song.title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '',song.title).title()
     if song.artist == "":
+       print ('artist:',song.location)
        song.artist = 'Unknown'
     if song.album == "":
+       print ('album:',song.location)
        song.album = 'Unknown'
     if song.title == "":
+       print ('title:',song.location)
        song.title = 'Unknown'
-    
-for song in destlist.songlist:
-    song.artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '',song.artist).title()
-    song.album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '',song.album).title()
-    song.title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '',song.title).title()
-    if song.artist == "":
-       song.artist = 'Unknown'
-    if song.album == "":
-       song.album = 'Unknown'
-    if song.title == "":
-       song.title = 'Unknown'
+os.chdir(dest_path)
+for song in srclist.songlist:
+    found = ''
+    for current_song in destlist.songlist:
+      if equal (song.title, current_song.title):
+        if equal (song.artist , current_song.artist):
+          if equal (song.album, current_song.album):
+             #print ("full match ",current_song.location)
+             full_list.add(current_song)
+             found = 'full'
+             break
+          else:
+            if song.artist == 'Ellie Goulding':
+              print (song.album, current_song.album)
+            found = 'artist'
+            tmp_song = current_song
 
-for song in srclist.songlist:    
-    for song2 in destlist.songlist:
-        if song.title == song2.tile:
-            if song.artist == song2.artist:
-                if song.album == song2.album:
-                    matchall.add(song2)
-                else:
-                    matchartist.add(song2)
-            else:
-                matchtitle.add(song2)
-            if not os.path.isfile(song2.location):
-                if not os.path.isfile(song.location):
-                    print ("song's missing",song2.location)
-                else:
-                    print ("song's only in source location",song.location)
+    if found == '':
+      no_match_list.add(song)
+    if found == 'artist':
+      partial_list.add(tmp_song)
 
-matchall.writem3u8()
-matchartist.writem3u8()
-matchtitle.writem3u8()
-print (matchall.maxsongs," Songs have been added to playlist", dest_path,"/",matchall.name)
-print (matchartist.maxsongs," Songs have been added to playlist", dest_path,"/",matchartist.name)
-print (matchtitle.maxsongs," Songs have been added to playlist", dest_path,"/",matchtitle.name)
+
+
+
+full_list.writem3u8('')
+partial_list.writem3u8('')
+no_match_list.writem3u8('')
+print (full_list.maxsongs," Songs have been added to playlist", dest_path,"/",full_list.name)
+print (partial_list.maxsongs," Songs have been added to playlist", dest_path,"/",partial_list.name)
+print (no_match_list.maxsongs," Songs have been added to playlist", dest_path,"/",no_match_list.name)

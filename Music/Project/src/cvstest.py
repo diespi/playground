@@ -51,10 +51,16 @@ class myplaylist(object):
         for i in self.songlist:
             print (i.artist,"-",i.title)
     
-    def writem3u8 (self):
+    def writem3u8 (self,newname):
         # create a playlist file sorted by title
-        listname = self.name
+        if newname == "":
+          listname = self.name
+        else:
+          listname = newname
         fname = path.join(os.getcwd(),listname)
+        if os.path.isfile(fname):
+            os.rename (listname,listname +'.org')
+            print ('renamed', listname, ' to ', listname +'.org')
         ID = 0
         mu3file=open(fname,'w',encoding='utf-8')
         slist=sorted (self.songlist, key=lambda songt: songt.title)
@@ -90,9 +96,6 @@ class myplaylist(object):
             # for now force into reading mp3 tags
             # only if its an mp3 file
             if '.mp3' in line:
-                # track is not formatted properly or has extra '-'
-                    # try to read the id-tag from the file
-                    #print(item)
                 try:
                     if verbose == 1:
                         print (item)
@@ -202,9 +205,12 @@ class myplaylist(object):
                           tag.album = 'Unknown'
                       tag.write()
                     track  = str.format("%02d" % tag.track)
-                    artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.artist).title()
-                    title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.title).title()
-                    album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.album).title()
+                    #artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.artist.strip()).title()
+                    #title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ] ', '', tag.title.strip()).title()
+                    #album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.album.strip()).title()
+                    artist = tag.artist.strip().title()
+                    title = tag.title.strip().title()
+                    album = tag.album.strip().title()
                     #print(title,tag.title)
                     disknr = tag.disc
                 # except Error("ID3v2 tag not found"):
@@ -221,6 +227,19 @@ class myplaylist(object):
                         #artist = tracknr[1].strip()
                 
                 
+                file_title = item.split ('/')
+                file_title = file_title[len (file_title) - 1].split('.')[0].strip()
+                file_title = file_title.split(' - ')[1]
+                def equal(a, b):
+                    x = re.sub('[^a-zA-Z0-9öäüÖÄÜß\n\(\)\[\]\{\}\,\&\$\!\+]', '', a).title()
+                    y = re.sub('[^a-zA-Z0-9öäüÖÄÜß\n\(\)\[\]\{\}\,\&\$\!\+]', '', b).title()
+                    try:
+                        return x.lower() == y.lower()
+                    except AttributeError:
+                        return x == y
+
+                if not equal(file_title,title):
+                    print('Item',file_title,'title',title)
                 newsong=songt('')
                 newsong.title = title
                 newsong.artist = artist
@@ -259,9 +278,9 @@ class myplaylist(object):
                     #print (fpath)
                     tag = stagger.read_tag(fpath)
                     track = str.format("%02d" % tag.track)
-                    artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.artist).title()
-                    title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.title).title()
-                    album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß \n\.\-\'\(\)\[\]\{\}\,\&\$\!\+]', '', tag.album).title()
+                    artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.artist.strip()).title()
+                    title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.title.strip()).title()
+                    album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.album.strip()).title()
                     #if artist != tag.artist:
                         #print(artist, " != ", tag.artist)
                     disknr = tag.disc
@@ -279,6 +298,16 @@ class myplaylist(object):
                     full_track = os.path.basename(fullline)
                     album_path = fullline.split('/')
                     disknr = 1
+                    title = ""
+                    track = 0
+                    artist = ""
+                    album = ""
+                    if len(album_path) == 1:
+                      # no '/' in the path check if it is a Windows path
+                      fullline = fullline.replace ('\\','/')
+                      full_track = os.path.basename(fullline)
+                      album_path = fullline.split('/')
+                      # print (fullline, full_track,album_path)
                     if len(album_path) == 2:
                       # ---------------
                       #  Short path: folder/title - artist/
@@ -291,11 +320,12 @@ class myplaylist(object):
                       # print(fullline,full_track,album,title,artist)
                       track=str.format("%02d" % 1)
                       # print ( artist,'/',album,'/',track,' - ', title)
-                    elif len(album_path) == 4:
+                    elif len(album_path) >= 4:
                       # ---------------
                       #  Normalized path
                       #  #EXTINF:85,'No More (I Can'T Stand It) - Maxx
                       #  M/Maxx/Dance Nrg 94/02 - 'No More (I Can'T Stand It).mp3
+                      print(full_track)
                       title = full_track.split('-')[1].split('.')[0].strip()
                       if title == "":
                         title = 'unknown'
@@ -346,6 +376,8 @@ class myplaylist(object):
                             # title=title+'-'+tracknr[j+1]
                         
                     # title = title.strip ('.mp3')
+                if title == '':
+                    title = 'Unknown'
                 filename = str(track) +" - " + title +".mp3"
                 if artist == '':
                     artist = 'Unknown'
@@ -359,7 +391,10 @@ class myplaylist(object):
                 newsong.track = track
                 newsong.disk = disknr
                 # print (file_path)
-                newsong.location = file_path
+                if mypath == '':
+                    newsong.location = fpath
+                else:
+                    newsong.location = file_path
                 self.add(newsong)
 
                 
@@ -503,6 +538,8 @@ def mkdir_recursive( path):
                         raise
 
 def copy(src, dest):
+    #print(src)
+    #print(dest)
     try:
         shutil.copytree(src, dest)
     except OSError as e:
@@ -511,3 +548,19 @@ def copy(src, dest):
             shutil.copy(src, dest)
         else:
             print('Directory not copied. Error: %s' % e)
+
+def normalize_tags (input_tag):
+    special_chars='/:#<>$+%!*`|{}?"\ @\n'
+    for invalid in special_chars:
+        input_tag = input_tag.replace(invalid,'_')
+    while '__' in input_tag:
+        input_tag = input_tag.replace('__','_')
+    while '&' in input_tag:
+        input_tag = input_tag.replace('&', 'and')
+    return (input_tag.lower())
+
+def my_equal(a, b):
+    x = normalize_tags(a)
+    y = normalize_tags(b)
+    return x == y
+

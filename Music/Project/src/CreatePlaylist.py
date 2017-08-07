@@ -65,5 +65,5 @@ if dest_path != '':
 else:
     path = source_path
 print("Copy playlist file to disk")
-newlist.writem3u8()
+newlist.writem3u8('')
 print (newlist.maxsongs," Songs have been added to playlist", path,"/",newlist.name)
