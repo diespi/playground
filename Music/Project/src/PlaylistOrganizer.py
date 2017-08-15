@@ -97,7 +97,7 @@ if command == '1':
     newlist.writem3u8('')
     print (newlist.maxsongs," Songs have been added to playlist", path,"/",newlist.name)
 
-# use a playlist an copy the files to the target directory
+# use a playlist and copy the files to the target directory
 if command == '2':
     newlist = myplaylist(playlist)
     destlist = myplaylist('new.m3u8')
@@ -199,8 +199,34 @@ if command == '4':
     print (partial_list.maxsongs," Songs have been added to playlist", dest_path,"/",partial_list.name)
     print (no_match_list.maxsongs," Songs have been added to playlist", dest_path,"/",no_match_list.name)
 
+# This part is for testing the integrity. Basically if a file tiltle doesn't mache the filename it's printed out.
+# it uses my_equal() function to remove all white spaces special characters. 
 if command == "5":
-    print ("to do")
+    srclist    = myplaylist(playlist)
+    os.chdir(source_path)
+    srclist.checkmu3('')
+    for song in srclist.songlist:
+        location = song.location.replace('.mp3','').split('/')
+        if len (location) == 1:
+            print ('len 1', location[0])
+        elif len (location) == 2:
+            print ('len 2', location[1])
+        elif len (location) == 3:
+            print ('len 3', location[2])
+        elif len (location) == 4:
+            print ('len 4', location[3])
+        elif len (location) > 4:
+            #print ('len >', location[len(location)-1])
+            filetitle = location[len(location)-1].split(' - ')
+            if len (filetitle) == 1:
+                filetitle = filetitle[0]
+            elif len (filetitle) == 2:
+                filetitle = filetitle[1]
+            elif len (filetitle) ==  3:
+                filetitle = filetitle[1] + ' - ' +filetitle[2]
+            if not my_equal(filetitle,song.title):
+               print (song.title)
+               print (song.location)
 # read a playlist of folder check if 
 # tag.title 
 # tag.artist 
@@ -244,4 +270,15 @@ if command == "5":
 #     "at sign" -> "@"
 # "&" versus "and"
 
-
+import csv
+if command == "6":
+   os.chdir(source_path)
+   with open(playlist, newline= '',encoding='latin-1') as f:
+    
+    reader = csv.reader(f, dialect='excel',delimiter='\t')
+    try:
+        for row in reader:
+          if not row[27] == '':
+            print(row[0], row[27])   
+    except csv.Error as e:
+        print('error')

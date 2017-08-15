@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# -*- coding: iso-8859-15 -*-
+# -*- coding: utf-8 -*-
 import codecs, os
 from os import path
 import stagger
@@ -43,6 +43,29 @@ class myplaylist(object):
         self.count +=1
         return self.songlist[self.count]         
     def add (self,song):
+        print (   
+                song.title,
+                song.artist,
+                song.composer,
+                song.album,
+                song.disk,
+                song.genre,
+                song.size,
+                song.time,
+                song.disc_nr,
+                song.disc_cnt,
+                song.track,
+                song.track_cnt,
+                song.year,
+                song.modified,
+                song.added,
+                song.comment,
+                song.plays,
+                song.last_played,
+                song.skips,
+                song.last_skipped,
+                song.rating,
+                song.location )
         self.songlist.append(song)
         self.maxsongs+=1
         
@@ -100,6 +123,8 @@ class myplaylist(object):
                     if verbose == 1:
                         print (item)
                     tag = stagger.read_tag(item)
+                    print(tag)
+                    print(list(tag.keys()))
                     if fixit == 1:
                       for key in list(tag.keys()):
                         if key in ('GEOB',  # General encapsulated object
@@ -204,10 +229,15 @@ class myplaylist(object):
                       if tag.album == '':
                           tag.album = 'Unknown'
                       tag.write()
+                    date = tag.date
+                    album_artist = tag.album_artist
+                    track_total = tag.track_total
+                    disc_total = tag.disc_total
+                    composer = tag.composer
+                    genre = tag.genre
+                    comment = tag.comment
+                    
                     track  = str.format("%02d" % tag.track)
-                    #artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.artist.strip()).title()
-                    #title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ] ', '', tag.title.strip()).title()
-                    #album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.album.strip()).title()
                     artist = tag.artist.strip().title()
                     title = tag.title.strip().title()
                     album = tag.album.strip().title()
@@ -227,25 +257,17 @@ class myplaylist(object):
                         #artist = tracknr[1].strip()
                 
                 
-                file_title = item.split ('/')
-                file_title = file_title[len (file_title) - 1].split('.')[0].strip()
-                file_title = file_title.split(' - ')[1]
-                def equal(a, b):
-                    x = re.sub('[^a-zA-Z0-9öäüÖÄÜß\n\(\)\[\]\{\}\,\&\$\!\+]', '', a).title()
-                    y = re.sub('[^a-zA-Z0-9öäüÖÄÜß\n\(\)\[\]\{\}\,\&\$\!\+]', '', b).title()
-                    try:
-                        return x.lower() == y.lower()
-                    except AttributeError:
-                        return x == y
-
-                if not equal(file_title,title):
-                    print('Item',file_title,'title',title)
-                newsong=songt('')
+                newsong=songt('self')
                 newsong.title = title
                 newsong.artist = artist
                 newsong.album = album
                 newsong.track = track
+                newsong.composer = composer
+                newsong.genre = genre
                 newsong.disk = disknr
+                newsong.comment = comment
+                newsong.year = date
+                newsong.size = 0
                 rootpath=os.path.dirname(item)
                 myrelpath=os.path.basename(item)
                 while rootpath != mypath:
@@ -278,11 +300,12 @@ class myplaylist(object):
                     #print (fpath)
                     tag = stagger.read_tag(fpath)
                     track = str.format("%02d" % tag.track)
-                    artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.artist.strip()).title()
-                    title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.title.strip()).title()
-                    album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.album.strip()).title()
-                    #if artist != tag.artist:
-                        #print(artist, " != ", tag.artist)
+                    #artist = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.artist.strip()).title()
+                    #title  = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.title.strip()).title()
+                    #album  = re.sub('[^a-zA-Z0-9öäüÖÄÜß\'\n\-\(\)\[\]\{\}\,\&\$\!\+ ]', '', tag.album.strip()).title()
+                    artist = tag.artist.strip().title()
+                    title = tag.title.strip().title()
+                    album = tag.album.strip().title()
                     disknr = tag.disc
                     #print(artist,album,track,title)
 
@@ -405,20 +428,64 @@ class songt(object):
     # sometimes itunes screws up the location in that case I leave it empty.
     # todo try to repair the location
     # todo normalized and non normalized locations
-          
+    # ----------------------------------------------
+    # itunes export text converted to excel and exported as csv
+    # 0 Name  - Title  
+    # 1 Artist  
+    # 2 Composer        
+    # 3 Album   
+    # 4 Grouping        
+    # 5 Work    
+    # 6 Movement Number 
+    # 7 Movement Count  
+    # 8 Movement Name   
+    # 9 Genre   
+    # 10 Size    
+    # 11 Time    
+    # 12 Disc Number     
+    # 13 Disc Count      
+    # 14 Track Number    
+    # 15 Track Count     
+    # 16 Year    
+    # 17 Date Modified   
+    # 18 Date Added      
+    # 19 Bit Rate        
+    # 20 Sample Rate     
+    # 21 Volume Adjustment       
+    # 22 Kind    
+    # 23 Equalizer       
+    # 24 Comments        
+    # 25 Plays   
+    # 26 Last Played     
+    # 27 Skips   
+    # 28 Last Skipped    
+    # 29 My Rating       
+    # 30 Location          
         def __init__(self,songlist):
 
             if songlist:
-                self.artist = songlist[1]
-                self.title = songlist[0]
-                self.album = songlist[3]
-                self.disk = songlist[8]
-                self.track = songlist[10]
-                self.rating = songlist[25]
-                if len (songlist) == rowlen:
-                    self.location = songlist[26]
-                else:
-                    self.location =''
+                self.title = ''
+                self.artist = ''
+                self.composer = ''
+                self.album = ''
+                self.disk = 0
+                self.genre = ''
+                self.size = 0
+                self.time = 0
+                self.disc_nr = 0
+                self.disc_cnt = 0
+                self.track = 0
+                self.track_cnt = 0
+                self.year = 0
+                self.modified = 0
+                self.added = 0
+                self.comments = ''
+                self.plays = 0
+                self.last_played = 0
+                self.skips = 0
+                self.last_skipped = 0
+                self.rating = 0
+                self.location =''
 
         def viewsong(self):
             print (self.location)
@@ -550,17 +617,27 @@ def copy(src, dest):
             print('Directory not copied. Error: %s' % e)
 
 def normalize_tags (input_tag):
-    special_chars='/:#<>$+%!*`|{}?"\ @\n'
+    mapping = {ord(u"ü"): u"ue", ord(u"ä"): u"ae", ord(u"ö"): u"oe", ord(u"ß"): u"ss"}
+    special_chars='éáàâà\´\’_.,;/:#<>$+%!*`|{}?"\ @\n\''
+    k = (b'\xcc\x88').decode('utf-8') # special messed up umlaut
     for invalid in special_chars:
-        input_tag = input_tag.replace(invalid,'_')
+        input_tag = input_tag.replace(invalid,'')
     while '__' in input_tag:
         input_tag = input_tag.replace('__','_')
     while '&' in input_tag:
         input_tag = input_tag.replace('&', 'and')
-    return (input_tag.lower())
+    #for german_chars in 'üü':
+        #input_tag = input_tag.replace(german_chars,'ue')
+    input_tag = input_tag.replace (k,'e')
+    return input_tag.lower().translate(mapping)
 
 def my_equal(a, b):
-    x = normalize_tags(a)
-    y = normalize_tags(b)
-    return x == y
-
+    x = normalize_tags(a).strip('_')
+    y = normalize_tags(b).strip('_')
+    # print ( "compare ", x,'  vs  ',y)
+    # return x == y
+    if x == y:
+        return 1
+    else:
+        print ( "compare/",x,'/ vs /',y,'/')
+        return 0
